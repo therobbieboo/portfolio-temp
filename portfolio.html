@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luke Lu | Agentic AI Engineer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg: #0a0a0f;
+            --card: #12121a;
+            --accent: #00d4aa;
+            --accent-dim: #00d4aa33;
+            --text: #e8e8ed;
+            --text-dim: #8888a0;
+            --border: #2a2a3a;
+        }
+        
+        body {
+            font-family: 'SF Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        /* Hero */
+        .hero {
+            padding: 80px 0 60px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero .title {
+            font-size: 1.4rem;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .hero .subtitle {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            margin-bottom: 24px;
+        }
+        
+        .hero .contact {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .hero .contact a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        
+        .hero .contact a:hover {
+            color: var(--accent);
+        }
+        
+        /* Sections */
+        section {
+            padding: 48px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        section:last-child {
+            border-bottom: none;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--text);
+        }
+        
+        /* Experience */
+        .job {
+            margin-bottom: 32px;
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .job-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .job-company {
+            color: var(--accent);
+            font-weight: 500;
+        }
+        
+        .job-period {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+        
+        .job ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .job li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+        }
+        
+        .job li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+        
+        /* Projects */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .project-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        
+        .project-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .project-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        
+        .project-card p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+        
+        .project-card .tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .project-card .tag {
+            background: var(--accent-dim);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .project-card .metric {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 12px;
+        }
+        
+        /* Skills */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .skill-category {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .skill-category h3 {
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .skill-category p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+        
+        /* Education */
+        .education {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+        }
+        
+        .education h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+        
+        .education .school {
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        
+        .education .detail {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+        
+        /* CTA */
+        .cta {
+            text-align: center;
+            padding: 60px 0;
+        }
+        
+        .cta h2 {
+            margin-bottom: 16px;
+        }
+        
+        .cta p {
+            color: var(--text-dim);
+            margin-bottom: 24px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--bg);
+            padding: 14px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        
+        .btn:hover {
+            transform: scale(1.02);
+            opacity: 0.9;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 600px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .job-header {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <h1>Luke Lu</h1>
+            <div class="title">Agentic AI Engineer</div>
+            <div class="subtitle">Princeton PhD | Amazon AGI | Self-Evolving Agents & Agentic Training</div>
+            <div class="contact">
+                <a href="mailto:chienlu@alumni.princeton.edu">chienlu@alumni.princeton.edu</a>
+                <a href="tel:+14185087661">415-508-7661</a>
+                <a href="https://linkedin.com/in/lukelu">LinkedIn</a>
+                <a href="https://github.com/lukelu">GitHub</a>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <section>
+            <h2>About</h2>
+            <p style="color: var(--text-dim); font-size: 1.05rem;">
+                Princeton PhD and ML Engineer at Amazon AGI with 5+ years building production AI systems at Big Tech and startups. 
+                Expert in <strong style="color: var(--accent);">Agentic LLM post-training</strong>, <strong style="color: var(--accent);">self-evolving agent systems</strong>, 
+                and <strong style="color: var(--accent);">scalable agent training frameworks</strong>. 
+                Seeking roles in Agentic AI, Self-evolving Agents, Agent Gyms, and AI Infrastructure.
+            </p>
+        </section>
+
+        <!-- Experience -->
+        <section>
+            <h2>Experience</h2>
+            
+            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">Agentic AI Engineer</span>
+                        <span class="job-company"> @ Amazon AGI</span>
+                    </div>
+                    <span class="job-period">Aug 2025 – Present | Sunnyvale, CA</span>
+                </div>
+                <ul>
+                    <li>Architected RL post-training pipelines for 150B+ MoE and dense LLMs, enabling self-evolving agent systems at Amazon scale</li>
+                    <li>Built Agentic Gym orchestrating 10K+ evaluation workflows for multi-turn self-evolving agents, delivering 3x throughput and $2M cost reduction</li>
+                </ul>
+            </div>
+            
+            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">Research Engineer</span>
+                        <span class="job-company"> @ ByteDance</span>
+                    </div>
+                    <span class="job-period">Jun 2023 – Aug 2025 | San Jose, CA</span>
+                </div>
+                <ul>
+                    <li>Built synthetic data generation platform for self-improving agent training, accelerating model iteration by 29%</li>
+                    <li>Invented multi-agent feedback optimization techniques: 3 first-author + 2 co-authored patents</li>
+                </ul>
+            </div>
+            
+            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">Co-Founder & CTO</span>
+                        <span class="job-company"> @ Unusly</span>
+                    </div>
+                    <span class="job-period">Oct 2019 – May 2023 | San Francisco, CA</span>
+                </div>
+                <ul>
+                    <li>Led development of multimodal AI systems with transformer architectures and RL-style post-training pipelines</li>
+                    <li>Architected self-evolving AI platform generating $100K revenue → IEEE paper, CES showcase, SIGGRAPH feature</li>
+                </ul>
+            </div>
+            
+            <div class="job">
+                <div class="job-header">
+                    <div>
+                        <span class="job-title">R&D Engineer</span>
+                        <span class="job-company"> @ Google (acquired Eyefluence)</span>
+                    </div>
+                    <span class="job-period">Nov 2015 – Jul 2019 | Mountain View, CA</span>
+                </div>
+                <ul>
+                    <li>Developed personalized biometric AI for Pixel: 30% UX improvement, 20% cost reduction → 1 patent</li>
+                    <li>Core technology contributed to Google's acquisition of the startup</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Projects -->
+        <section>
+            <h2>AI Projects</h2>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <h3>🤖 Agentic Gym Framework</h3>
+                    <p>Scalable agent evaluation infrastructure for training self-evolving agents. Orchestrates 10K+ workflows.</p>
+                    <div class="tags">
+                        <span class="tag">RLHF</span>
+                        <span class="tag">Agent Training</span>
+                        <span class="tag">vLLM</span>
+                    </div>
+                    <div class="metric">3x throughput | $2M savings</div>
+                </div>
+                
+                <div class="project-card">
+                    <h3>🧬 Self-Evolving Agent System</h3>
+                    <p>End-to-end pipeline enabling LLMs to improve themselves through feedback loops and autonomous data generation.</p>
+                    <div class="tags">
+                        <span class="tag">Self-evolving</span>
+                        <span class="tag">Synthetic Data</span>
+                        <span class="tag">RL</span>
+                    </div>
+                    <div class="metric">29% faster iteration</div>
+                </div>
+                
+                <div class="project-card">
+                    <h3>⚡ MoE Training Pipeline</h3>
+                    <p>Production RL post-training for 150B+ MoE models. Multi-turn agent loop optimization at Big Tech scale.</p>
+                    <div class="tags">
+                        <span class="tag">Megatron</span>
+                        <span class="tag">PPO/DPO</span>
+                        <span class="tag">Distributed</span>
+                    </div>
+                    <div class="metric">150B+ parameters</div>
+                </div>
+                
+                <div class="project-card">
+                    <h3>🔄 Multimodal Feedback AI</h3>
+                    <p>Personalized AI platform with synthetic data and RL-style post-training. Reached $100K revenue.</p>
+                    <div class="tags">
+                        <span class="tag">Transformers</span>
+                        <span class="tag">Computer Vision</span>
+                        <span class="tag">IEEE</span>
+                    </div>
+                    <div class="metric">$100K revenue | CES & SIGGRAPH</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills -->
+        <section>
+            <h2>Technical Skills</h2>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <h3>Agentic/RL</h3>
+                    <p>RLHF, PPO, DPO, Agentic Gym, Self-evolving agents, Multi-agent RL</p>
+                </div>
+                <div class="skill-category">
+                    <h3>Frameworks</h3>
+                    <p>verl, Slime, Megatron, Ray, vLLM, Transformers, PyTorch</p>
+                </div>
+                <div class="skill-category">
+                    <h3>Infrastructure</h3>
+                    <p>GPU clusters, Distributed training, ML infrastructure, A/B testing</p>
+                </div>
+                <div class="skill-category">
+                    <h3>Languages</h3>
+                    <p>Python, C++, CUDA</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Education -->
+        <section>
+            <h2>Education</h2>
+            <div class="education">
+                <h3>Ph.D., Electrical and Computer Engineering</h3>
+                <div class="school">Princeton University</div>
+                <div class="detail">
+                    Taiwan National Study Abroad Scholarship (full ride) · 5+ papers (500+ citations) · 2 patents · Emil Wolf Best Paper Award
+                </div>
+            </div>
+        </section>
+
+        <!-- Patents -->
+        <section>
+            <h2>Patents</h2>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 8px 0; color: var(--text-dim); border-bottom: 1px solid var(--border);">
+                    <strong style="color: var(--text);">Systems and Methods for Synthetic Data Generation in LLM Training</strong> — First-author
+                </li>
+                <li style="padding: 8px 0; color: var(--text-dim); border-bottom: 1px solid var(--border);">
+                    <strong style="color: var(--text);">Scalable Multi-Agent Reinforcement Learning Infrastructure</strong> — First-author
+                </li>
+                <li style="padding: 8px 0; color: var(--text-dim); border-bottom: 1px solid var(--border);">
+                    <strong style="color: var(--text);">Personalized Biometric Authentication for Mobile Devices</strong> — First-author
+                </li>
+                <li style="padding: 8px 0; color: var(--text-dim);">
+                    <strong style="color: var(--text);">Self-Tuning Feedback Loops for Autonomous Agent Training</strong> — Co-author
+                </li>
+            </ul>
+        </section>
+
+        <!-- CTA -->
+        <div class="cta">
+            <h2>Let's Connect</h2>
+            <p>Looking for opportunities in Agentic AI, Self-evolving Agents, and Agent Infrastructure.</p>
+            <a href="mailto:chienlu@alumni.princeton.edu" class="btn">Get in Touch</a>
+        </div>
+
+        <footer>
+            <p>© 2026 Luke Lu · San Francisco, CA</p>
+        </footer>
+    </div>
+</body>
+</html>
