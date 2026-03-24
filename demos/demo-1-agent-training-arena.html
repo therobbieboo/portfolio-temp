@@ -1037,3 +1037,94 @@
     </script>
 </body>
 </html>
+<!-- Enhanced: Word Cloud Visualization - Add before </body> -->
+<style>
+.sentiment-viz {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+    align-items: center;
+}
+.sentiment-bar {
+    flex: 1;
+    height: 24px;
+    background: var(--bg);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+.sentiment-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+    border-radius: 12px;
+}
+.sentiment-fill.positive { background: linear-gradient(90deg, #22c55e, #00ff88); }
+.sentiment-fill.negative { background: linear-gradient(90deg, #dc2626, #f472b6); }
+.word-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    padding: 12px;
+}
+.word-tag {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    animation: popIn 0.3s ease;
+}
+.word-tag.positive { background: #22c55e22; color: #22c55e; }
+.word-tag.negative { background: #dc262622; color: #dc2626; }
+.word-tag.neutral { background: #66666622; color: #666; }
+@keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+</style>
+
+<script>
+// Enhanced: Word Cloud and Sentiment Visualization
+function addWordCloud(text) {
+    const words = text.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+    const wordCounts = {};
+    words.forEach(w => {
+        const clean = w.replace(/[^a-z]/g, '');
+        if (clean.length > 3) wordCounts[clean] = (wordCounts[clean] || 0) + 1;
+    });
+    
+    const topWords = Object.entries(wordCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 12);
+    
+    const positiveWords = ['great', 'good', 'love', 'amazing', 'excellent', 'best', 'happy', 'wonderful'];
+    const negativeWords = ['bad', 'terrible', 'awful', 'poor', 'worst', 'hate', 'disappointed', 'slow', 'broken'];
+    
+    const container = document.getElementById('wordCloud');
+    if (container) {
+        container.innerHTML = topWords.map(([word, count]) => {
+            let type = 'neutral';
+            if (positiveWords.some(p => word.includes(p))) type = 'positive';
+            else if (negativeWords.some(n => word.includes(n))) type = 'negative';
+            const size = 0.75 + (count * 0.15);
+            return `<span class="word-tag ${type}" style="font-size: ${size}rem">${word}</span>`;
+        }).join('');
+    }
+}
+
+function addSentimentBar(sentiment, confidence) {
+    const fill = document.getElementById('sentimentFill');
+    if (fill) {
+        fill.className = 'sentiment-fill ' + sentiment;
+        fill.style.width = confidence + '%';
+    }
+}
+
+// Override displayResult to add visualizations
+const originalDisplayResult = displayResult;
+displayResult = function(result) {
+    originalDisplayResult(result);
+    const input = document.getElementById('feedbackInput').value;
+    addWordCloud(input);
+    addSentimentBar(result.sentiment, result.confidence);
+};
+</script>

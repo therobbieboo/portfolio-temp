@@ -1032,3 +1032,56 @@
     </script>
 </body>
 </html>
+
+<script>
+// Enhanced: Interactive learning curve with draggable timeline
+let isDragging = false;
+let dragPoint = null;
+
+function makeCurveInteractive() {
+    const svg = document.querySelector('.chart-svg');
+    if (!svg) return;
+    
+    svg.style.cursor = 'pointer';
+    
+    svg.addEventListener('click', function(e) {
+        const rect = svg.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Check if clicking on data point
+        const points = document.querySelectorAll('.chart-point');
+        points.forEach(point => {
+            const ptX = parseFloat(point.getAttribute('cx'));
+            const ptY = parseFloat(point.getAttribute('cy'));
+            if (Math.abs(x - ptX) < 20 && Math.abs(y - ptY) < 20) {
+                showPointInfo(ptX, ptY);
+            }
+        });
+    });
+}
+
+function showPointInfo(x, y) {
+    // Show tooltip with iteration info
+    const container = document.querySelector('.chart-container');
+    let tooltip = document.getElementById('chartTooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'chartTooltip';
+        tooltip.style.cssText = 'position:absolute;background:var(--card);border:1px solid var(--accent);padding:8px 12px;border-radius:8px;font-size:0.75rem;z-index:100;';
+        container.appendChild(tooltip);
+    }
+    
+    const iter = Math.round((x - 50) / 730 * 50);
+    const acc = Math.round((200 - y) / 180 * 100);
+    tooltip.innerHTML = `Iteration: ${iter}<br>Accuracy: ${acc}%`;
+    tooltip.style.left = (x + 10) + 'px';
+    tooltip.style.top = (y - 30) + 'px';
+    tooltip.style.display = 'block';
+    
+    setTimeout(() => tooltip.style.display = 'none', 2000);
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', makeCurveInteractive);
+</script>

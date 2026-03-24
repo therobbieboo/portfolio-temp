@@ -889,3 +889,54 @@ def test_urgency_detection():
     </script>
 </body>
 </html>
+
+<script>
+// Enhanced: Live code preview execution
+function addLivePreview() {
+    const editor = document.getElementById('codeArea');
+    if (!editor) return;
+    
+    // Add preview button if not exists
+    const header = document.querySelector('.editor-header');
+    if (header && !document.getElementById('previewBtn')) {
+        const btn = document.createElement('button');
+        btn.id = 'previewBtn';
+        btn.className = 'action-btn';
+        btn.innerHTML = '👁️ Preview';
+        btn.onclick = showCodePreview;
+        header.appendChild(btn);
+    }
+}
+
+function showCodePreview() {
+    const code = document.getElementById('codeArea').value;
+    const preview = window.open('', '_blank', 'width=600,height=400');
+    preview.document.write(`
+        <html>
+        <head>
+            <title>Code Preview</title>
+            <style>
+                body { font-family: 'SF Mono', monospace; padding: 20px; background: #1a1a2e; color: #fff; }
+                h3 { margin-top: 0; color: #22d3ee; }
+                pre { background: #0a0a15; padding: 16px; border-radius: 8px; overflow: auto; }
+                .keyword { color: #c678dd; }
+                .string { color: #98c379; }
+                .comment { color: #5c6370; }
+                .function { color: #61afef; }
+            </style>
+        </head>
+        <body>
+            <h3>📄 Generated Code</h3>
+            <pre>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+            <h3>📊 Code Statistics</h3>
+            <p>Lines: ${code.split('\n').length}</p>
+            <p>Characters: ${code.length}</p>
+            <p>Functions: ${(code.match(/def /g) || []).length}</p>
+            <p>Classes: ${(code.match(/class /g) || []).length}</p>
+        </body>
+        </html>
+    `);
+}
+
+document.addEventListener('DOMContentLoaded', addLivePreview);
+</script>

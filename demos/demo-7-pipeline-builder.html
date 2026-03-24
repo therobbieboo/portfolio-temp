@@ -796,3 +796,65 @@ ${'='.repeat(50)}
     </script>
 </body>
 </html>
+
+<script>
+// Enhanced: Pipeline Builder with live preview
+function addPipelinePreview() {
+    const header = document.querySelector('.canvas-header');
+    if (header && !document.getElementById('previewPipeline')) {
+        const btn = document.createElement('button');
+        btn.id = 'previewPipeline';
+        btn.className = 'action-btn';
+        btn.innerHTML = '👁️ Preview';
+        btn.onclick = showPipelinePreview;
+        header.appendChild(btn);
+    }
+}
+
+function showPipelinePreview() {
+    const nodes = document.querySelectorAll('.node');
+    const preview = window.open('', '_blank', 'width=500,height=600');
+    
+    let flow = '';
+    nodes.forEach(node => {
+        const icon = node.querySelector('.node-icon')?.textContent || '●';
+        const title = node.querySelector('.node-title')?.textContent || 'Node';
+        flow += `${icon} ${title}\n`;
+        flow += '    ↓\n';
+    });
+    flow += 'END';
+    
+    preview.document.write(`
+        <html>
+        <head>
+            <title>Pipeline Flow Preview</title>
+            <style>
+                body { font-family: 'SF Mono', monospace; padding: 20px; background: #1a1a2e; color: #fff; }
+                h3 { color: #a855f7; margin-top: 0; }
+                pre { 
+                    background: #0a0a15; 
+                    padding: 20px; 
+                    border-radius: 12px; 
+                    font-size: 14px;
+                    line-height: 1.8;
+                    color: #22d3ee;
+                }
+                .stats { margin-top: 20px; }
+                .stat { padding: 8px 0; border-bottom: 1px solid #2a2a3a; }
+            </style>
+        </head>
+        <body>
+            <h3>🔄 Pipeline Flow</h3>
+            <pre>${flow}</pre>
+            <div class="stats">
+                <div class="stat">📦 Total Nodes: ${nodes.length}</div>
+                <div class="stat">🔗 Connections: ${nodes.length - 1}</div>
+                <div class="stat">⚡ Estimated Runtime: ${nodes.length * 0.5}s</div>
+            </div>
+        </body>
+        </html>
+    `);
+}
+
+document.addEventListener('DOMContentLoaded', addPipelinePreview);
+</script>

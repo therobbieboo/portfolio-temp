@@ -848,3 +848,63 @@
     </script>
 </body>
 </html>
+
+<script>
+// Enhanced: Try real LLM API with fallback
+async function callRealLLM(prompt, systemPrompt) {
+    try {
+        // Try using free Groq API (fast, no key needed for limited use)
+        const response = await fetch('https://groq.com/groq', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: prompt }
+                ],
+                model: 'llama-3.1-70b-versatile',
+                temperature: 0.7,
+                max_tokens: 150
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content || null;
+        }
+    } catch (e) {
+        console.log('Groq API unavailable, using fallback');
+    }
+    return null;
+}
+
+// Enhanced debate with visual feedback
+function enhanceDebateUI() {
+    // Add round timer
+    const header = document.querySelector('.topic-section');
+    if (header && !document.getElementById('debateTimer')) {
+        const timer = document.createElement('div');
+        timer.id = 'debateTimer';
+        timer.style.cssText = 'margin-top:12px;font-size:0.8rem;color:var(--text-dim)';
+        timer.innerHTML = '⏱️ Debate in progress...';
+        header.appendChild(timer);
+    }
+    
+    // Add live scores comparison
+    const scoreCards = document.querySelectorAll('.metric-value');
+    if (scoreCards.length >= 4) {
+        const maxScore = Math.max(...Array.from(scoreCards).map(s => parseInt(s.textContent) || 0));
+        scoreCards.forEach(card => {
+            const score = parseInt(card.textContent) || 0;
+            if (score === maxScore && score > 0) {
+                card.style.color = '#22c55e';
+                card.textContent = score + ' ★';
+            }
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', enhanceDebateUI);
+</script>

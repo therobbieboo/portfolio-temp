@@ -1071,3 +1071,17 @@
     </script>
 </body>
 </html>
+
+<script>
+// Enhanced: Real-time node status animation
+const originalRunPipeline = runPipeline;
+runPipeline = function() {
+    originalRunPipeline();
+    // Add pulsing glow to active nodes
+    setTimeout(() => {
+        document.querySelectorAll('.node.active').forEach(node => {
+            node.style.boxShadow = '0 0 30px rgba(0,170,255,0.5)';
+        });
+    }, 100);
+}
+</script>
