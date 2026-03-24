@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Evolving Agent - Research Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --border: #e5e7eb;
+            --accent: #2563eb;
+            --accent-light: #dbeafe;
+            --text: #1f2937;
+            --text-dim: #6b7280;
+            --success: #16a34a;
+            --warning: #d97706;
+        }
+        
+        body {
+            font-family: 'SF Pro', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        
+        /* Header - Academic Style */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .paper-meta {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+        
+        .paper-meta span {
+            margin: 0 8px;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        
+        .authors {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+        
+        .abstract {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 24px;
+            text-align: left;
+        }
+        
+        .abstract h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+        
+        .abstract p {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+        
+        /* Sections */
+        .section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-number {
+            background: var(--accent);
+            color: #fff;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* Metrics Grid */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .metric {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        
+        /* Learning Curve Chart */
+        .chart-container {
+            height: 280px;
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .chart-svg {
+            width: 100%;
+            height: 220px;
+        }
+        
+        .chart-line {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .chart-area {
+            fill: url(#chartGradient);
+            opacity: 0.3;
+        }
+        
+        .chart-point {
+            fill: var(--accent);
+            stroke: #fff;
+            stroke-width: 2;
+            cursor: pointer;
+            transition: r 0.2s;
+        }
+        
+        .chart-point:hover {
+            r: 6;
+        }
+        
+        .chart-grid-line {
+            stroke: var(--border);
+            stroke-width: 1;
+            stroke-dasharray: 3,3;
+        }
+        
+        .chart-label {
+            font-size: 0.7rem;
+            fill: var(--text-dim);
+        }
+        
+        .chart-axis-label {
+            font-size: 0.65rem;
+            fill: var(--text-dim);
+            text-anchor: middle;
+        }
+        
+        /* Control Buttons */
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        
+        .btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        
+        .btn.primary:hover {
+            background: #1d4ed8;
+        }
+        
+        /* Decision Tree Visualization */
+        .tree-container {
+            min-height: 280px;
+            padding: 20px;
+            background: var(--bg);
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        
+        .tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        
+        .tree-level {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            position: relative;
+        }
+        
+        .tree-node {
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 24px;
+            text-align: center;
+            min-width: 140px;
+            position: relative;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .tree-node:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .tree-node.root {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        
+        .tree-node.leaf {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+        
+        .tree-node.new {
+            animation: newNode 0.5s ease;
+        }
+        
+        @keyframes newNode {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        .tree-node-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .tree-node-value {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-top: 4px;
+            font-family: 'SF Mono', monospace;
+        }
+        
+        /* Agent State */
+        .agent-state {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .state-panel {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .state-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .param-list {
+            font-size: 0.8rem;
+        }
+        
+        .param-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .param-item:last-child {
+            border-bottom: none;
+        }
+        
+        .param-name {
+            color: var(--text-dim);
+        }
+        
+        .param-value {
+            font-weight: 500;
+            font-family: 'SF Mono', monospace;
+            color: var(--accent);
+        }
+        
+        /* Prompt Evolution Timeline */
+        .prompt-timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .prompt-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+        
+        .prompt-version {
+            position: relative;
+            padding: 14px;
+            margin-bottom: 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: 'SF Mono', monospace;
+            border-left: 3px solid var(--border);
+            transition: all 0.3s;
+        }
+        
+        .prompt-version::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 18px;
+            width: 10px;
+            height: 10px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+        }
+        
+        .prompt-version.latest {
+            background: var(--accent-light);
+            border-color: var(--accent);
+        }
+        
+        .prompt-version.latest::before {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .prompt-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .prompt-text {
+            color: var(--text);
+            line-height: 1.5;
+        }
+        
+        /* Comparison Panel */
+        .comparison-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 20px;
+        }
+        
+        .comparison-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+        
+        .comparison-header {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .comparison-header.v1 { color: var(--text-dim); }
+        .comparison-header.v2 { color: var(--success); }
+        
+        .comparison-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .comparison-stat {
+            text-align: center;
+            padding: 10px;
+            background: var(--card);
+            border-radius: 6px;
+        }
+        
+        .comparison-stat-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .comparison-stat-value.good { color: var(--success); }
+        .comparison-stat-value.bad { color: #dc2626; }
+        
+        .comparison-stat-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+        }
+        
+        /* Export Button */
+        .export-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+        
+        .export-btn {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .export-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+        
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .agent-state {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .tree-level {
+                gap: 20px;
+            }
+            
+            .tree-node {
+                min-width: 100px;
+                padding: 10px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="paper-meta">
+                <span>arXiv:2503.XXXXX</span>
+                <span>•</span>
+                <span>cs.AI</span>
+                <span>•</span>
+                <span>2026</span>
+            </div>
+            <h1>Self-Evolving Agents: Adaptive Prompt Optimization</h1>
+            <div class="authors">
+                Inner Product Research Lab<sup>1</sup>
+            </div>
+            
+            <div class="abstract">
+                <h3>Abstract</h3>
+                <p>We present a framework for self-evolving AI agents that continuously optimize through environmental feedback. Our approach achieves <strong>+47% improvement</strong> in task completion rates.</p>
+            </div>
+        </header>
+        
+        <!-- Live Metrics -->
+        <div class="metrics">
+            <div class="metric">
+                <div class="metric-value" id="iteration">0</div>
+                <div class="metric-label">Iteration</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="accuracy">0%</div>
+                <div class="metric-label">Accuracy</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="improvement">+0%</div>
+                <div class="metric-label">Improvement</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value" id="convergence">0.00</div>
+                <div class="metric-label">Convergence</div>
+            </div>
+        </div>
+        
+        <!-- Section 1: Interactive Learning Curve -->
+        <div class="section">
+            <div class="section-title">
+                <span class="section-number">1</span>
+                Training Dynamics (Live)
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart">
+                    <svg class="chart-svg" viewBox="0 0 800 220">
+                        <defs>
+                            <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#2563eb;stop-opacity:0.3" />
+                                <stop offset="100%" style="stop-color:#2563eb;stop-opacity:0" />
+                            </linearGradient>
+                        </defs>
+                        
+                        <!-- Grid lines -->
+                        <line class="chart-grid-line" x1="50" y1="20" x2="780" y2="20" />
+                        <line class="chart-grid-line" x1="50" y1="70" x2="780" y2="70" />
+                        <line class="chart-grid-line" x1="50" y1="120" x2="780" y2="120" />
+                        <line class="chart-grid-line" x1="50" y1="170" x2="780" y2="170" />
+                        
+                        <!-- Axis labels -->
+                        <text class="chart-label" x="40" y="24" text-anchor="end">100%</text>
+                        <text class="chart-label" x="40" y="74" text-anchor="end">75%</text>
+                        <text class="chart-label" x="40" y="124" text-anchor="end">50%</text>
+                        <text class="chart-label" x="40" y="174" text-anchor="end">25%</text>
+                        <text class="chart-label" x="40" y="200" text-anchor="end">0%</text>
+                        
+                        <!-- X axis labels -->
+                        <text class="chart-axis-label" x="50" y="215">0</text>
+                        <text class="chart-axis-label" x="192" y="215">10</text>
+                        <text class="chart-axis-label" x="334" y="215">20</text>
+                        <text class="chart-axis-label" x="476" y="215">30</text>
+                        <text class="chart-axis-label" x="618" y="215">40</text>
+                        <text class="chart-axis-label" x="760" y="215">50</text>
+                        
+                        <!-- Chart line and area -->
+                        <path class="chart-area" id="chartArea" d="M50,200 L50,200 " />
+                        <path class="chart-line" id="chartLine" d="M50,200 L50,200 " />
+                        
+                        <!-- Data points container -->
+                        <g id="dataPoints"></g>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn primary" onclick="runIteration()">
+                    <span>▶</span> Run Iteration
+                </button>
+                <button class="btn" onclick="autoTrain()">
+                    <span>⏩</span> Auto Train
+                </button>
+                <button class="btn" onclick="resetExperiment()">
+                    <span>↺</span> Reset
+                </button>
+                <button class="btn" onclick="addTrainingData()">
+                    <span>+</span> Add Custom Data
+                </button>
+            </div>
+        </div>
+        
+        <!-- Section 2: Dynamic Decision Tree -->
+        <div class="section">
+            <div class="section-title">
+                <span class="section-number">2</span>
+                Decision Tree Evolution
+            </div>
+            
+            <div class="tree-container">
+                <div class="tree" id="decisionTree">
+                    <div class="tree-level">
+                        <div class="tree-node root" id="tree-root">
+                            <div class="tree-node-label">feedback_type?</div>
+                            <div class="tree-node-value">score: 0.85</div>
+                        </div>
+                    </div>
+                    <div class="tree-level">
+                        <div class="tree-node" id="tree-left">
+                            <div class="tree-node-label">sentiment positive?</div>
+                            <div class="tree-node-value">score: 0.92</div>
+                        </div>
+                        <div class="tree-node" id="tree-right">
+                            <div class="tree-node-label">sentiment negative?</div>
+                            <div class="tree-node-value">score: 0.88</div>
+                        </div>
+                    </div>
+                    <div class="tree-level">
+                        <div class="tree-node leaf">
+                            <div class="tree-node-label">→ Escalate</div>
+                            <div class="tree-node-value">action: auto</div>
+                        </div>
+                        <div class="tree-node leaf">
+                            <div class="tree-node-label">→ Auto-Respond</div>
+                            <div class="tree-node-value">action: draft</div>
+                        </div>
+                        <div class="tree-node leaf">
+                            <div class="tree-node-label">→ Analyze Deep</div>
+                            <div class="tree-node-value">action: deep</div>
+                        </div>
+                        <div class="tree-node leaf">
+                            <div class="tree-node-label">→ Archive</div>
+                            <div class="tree-node-value">action: none</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 3: Agent State & Prompt Evolution -->
+        <div class="section">
+            <div class="section-title">
+                <span class="section-number">3</span>
+                Agent Parameters & Prompt History
+            </div>
+            
+            <div class="agent-state">
+                <div class="state-panel">
+                    <div class="state-title">
+                        <span>🧠</span> Neural Weights
+                    </div>
+                    <div class="param-list">
+                        <div class="param-item">
+                            <span class="param-name">attention_weight</span>
+                            <span class="param-value" id="attention">0.72</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-name">memory_decay</span>
+                            <span class="param-value" id="memory">0.05</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-name">learning_rate</span>
+                            <span class="param-value" id="learning">0.001</span>
+                        </div>
+                        <div class="param-item">
+                            <span class="param-name">exploration</span>
+                            <span class="param-value" id="exploration">0.15</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="state-panel">
+                    <div class="state-title">
+                        <span>📝</span> Prompt Evolution History
+                    </div>
+                    <div class="prompt-timeline" id="promptTimeline">
+                        <div class="prompt-version" id="prompt-v1">
+                            <div class="prompt-label">
+                                <span>v1.0 (Initial)</span>
+                                <span>iter 0</span>
+                            </div>
+                            <div class="prompt-text">Analyze this feedback and provide a response.</div>
+                        </div>
+                        <div class="prompt-version" id="prompt-v2">
+                            <div class="prompt-label">
+                                <span>v1.1</span>
+                                <span>iter 10</span>
+                            </div>
+                            <div class="prompt-text">Analyze sentiment, classify urgency, then generate response.</div>
+                        </div>
+                        <div class="prompt-version latest" id="prompt-v3">
+                            <div class="prompt-label">
+                                <span>v2.0 (Current)</span>
+                                <span>iter 25</span>
+                            </div>
+                            <div class="prompt-text">1) Detect sentiment 2) Assess urgency 3) Route to handler 4) Draft response</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Version Comparison -->
+            <div class="comparison-panel">
+                <div class="comparison-card">
+                    <div class="comparison-header v1">
+                        <span>📊</span> v1.0 (Baseline)
+                    </div>
+                    <div class="comparison-stats">
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-value" id="v1-accuracy">65%</div>
+                            <div class="comparison-stat-label">Accuracy</div>
+                        </div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-value" id="v1-speed">2.1s</div>
+                            <div class="comparison-stat-label">Avg Time</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="comparison-card">
+                    <div class="comparison-header v2">
+                        <span>🚀</span> v2.0 (Current)
+                    </div>
+                    <div class="comparison-stats">
+                        <div class="comparison-stat-value good" id="v2-accuracy">91%</div>
+                        <div class="comparison-stat-label">Accuracy</div>
+                        <div class="comparison-stat">
+                            <div class="comparison-stat-value" id="v2-speed">0.8s</div>
+                            <div class="comparison-stat-label">Avg Time</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Export -->
+            <div class="export-section">
+                <button class="export-btn" onclick="exportPrompt()">
+                    <span>📤</span> Export Best Prompt
+                </button>
+                <button class="export-btn" onclick="exportConfig()">
+                    <span>⚙️</span> Export Config
+                </button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2026 Inner Product Research Lab | <a href="#">Paper PDF</a> | <a href="#">Code</a> | <a href="#">Demo</a></p>
+        </footer>
+    </div>
+    
+    <script>
+        // State
+        let iteration = 0;
+        let accuracy = 0.15;
+        let baseline = 0.15;
+        let dataPoints = [{ x: 0, y: 15 }];
+        let autoTrainInterval = null;
+        let promptVersions = [
+            { version: 'v1.0', iter: 0, text: 'Analyze this feedback and provide a response.' },
+            { version: 'v1.1', iter: 10, text: 'Analyze sentiment, classify urgency, then generate response.' },
+            { version: 'v2.0', iter: 25, text: '1) Detect sentiment 2) Assess urgency 3) Route to handler 4) Draft response based on historical patterns' }
+        ];
+        
+        function runIteration() {
+            iteration++;
+            
+            // Simulate improvement with diminishing returns
+            const improvement = (1 - accuracy) * 0.25 * Math.random();
+            accuracy = Math.min(0.98, accuracy + improvement);
+            
+            const improvementPct = ((accuracy - baseline) / baseline * 100).toFixed(1);
+            const convergence = accuracy.toFixed(2);
+            
+            // Update display
+            document.getElementById('iteration').textContent = iteration;
+            document.getElementById('accuracy').textContent = (accuracy * 100).toFixed(0) + '%';
+            document.getElementById('improvement').textContent = '+' + improvementPct + '%';
+            document.getElementById('convergence').textContent = convergence;
+            
+            // Add data point
+            dataPoints.push({ x: iteration, y: accuracy * 100 });
+            updateChart();
+            
+            // Random parameter updates
+            updateParams();
+            
+            // Update prompt periodically
+            if (iteration % 10 === 0 && iteration > 0) {
+                addPromptVersion();
+            }
+            
+            // Update comparison
+            updateComparison();
+        }
+        
+        function updateChart() {
+            const line = document.getElementById('chartLine');
+            const area = document.getElementById('chartArea');
+            const pointsGroup = document.getElementById('dataPoints');
+            
+            if (dataPoints.length < 2) return;
+            
+            const width = 730; // 780 - 50
+            const height = 180; // 200 - 20
+            const startX = 50;
+            const startY = 200;
+            
+            let pathD = `M${startX},${startY}`;
+            let areaD = `M${startX},${startY}`;
+            
+            pointsGroup.innerHTML = '';
+            
+            dataPoints.forEach((point, i) => {
+                const x = startX + (point.x / 50) * width;
+                const y = startY - (point.y / 100) * height;
+                
+                pathD += ` L${x},${y}`;
+                areaD += ` L${x},${y}`;
+                
+                // Add point
+                if (i > 0) {
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('class', 'chart-point');
+                    circle.setAttribute('cx', x);
+                    circle.setAttribute('cy', y);
+                    circle.setAttribute('r', 4);
+                    circle.setAttribute('title', `Iter ${point.x}: ${point.y.toFixed(0)}%`);
+                    pointsGroup.appendChild(circle);
+                }
+            });
+            
+            // Extend area to bottom
+            const lastPoint = dataPoints[dataPoints.length - 1];
+            const lastX = startX + (lastPoint.x / 50) * width;
+            areaD += ` L${lastX},${startY} Z`;
+            
+            line.setAttribute('d', pathD);
+            area.setAttribute('d', areaD);
+        }
+        
+        function updateParams() {
+            document.getElementById('attention').textContent = (0.65 + Math.random() * 0.2).toFixed(2);
+            document.getElementById('memory').textContent = (0.03 + Math.random() * 0.05).toFixed(3);
+            document.getElementById('learning').textContent = (0.0005 + Math.random() * 0.001).toFixed(4);
+            document.getElementById('exploration').textContent = Math.max(0.05, 0.2 - iteration * 0.005).toFixed(2);
+        }
+        
+        function addPromptVersion() {
+            const newVersion = {
+                version: `v2.${Math.floor(iteration / 10)}`,
+                iter: iteration,
+                text: `Optimized: ${['route smarter', 'faster classification', 'better escalation'][Math.floor(Math.random() * 3)]}`
+            };
+            
+            promptVersions.push(newVersion);
+            
+            const timeline = document.getElementById('promptTimeline');
+            const div = document.createElement('div');
+            div.className = 'prompt-version latest';
+            div.innerHTML = `
+                <div class="prompt-label">
+                    <span>${newVersion.version}</span>
+                    <span>iter ${newVersion.iter}</span>
+                </div>
+                <div class="prompt-text">${newVersion.text}</div>
+            `;
+            
+            // Remove latest from previous
+            document.querySelectorAll('.prompt-version').forEach(p => p.classList.remove('latest'));
+            timeline.insertBefore(div, timeline.firstChild);
+        }
+        
+        function updateComparison() {
+            const v1Acc = Math.round(accuracy * 100 - 25 + Math.random() * 10);
+            const v2Acc = Math.round(accuracy * 100);
+            
+            document.getElementById('v1-accuracy').textContent = v1Acc + '%';
+            document.getElementById('v2-accuracy').textContent = v2Acc + '%';
+            
+            document.getElementById('v1-speed').textContent = (2.5 - iteration * 0.03).toFixed(1) + 's';
+            document.getElementById('v2-speed').textContent = Math.max(0.3, 1.2 - iteration * 0.02).toFixed(1) + 's';
+        }
+        
+        function autoTrain() {
+            if (autoTrainInterval) {
+                clearInterval(autoTrainInterval);
+                autoTrainInterval = null;
+                return;
+            }
+            
+            autoTrainInterval = setInterval(() => {
+                if (iteration < 50) {
+                    runIteration();
+                } else {
+                    clearInterval(autoTrainInterval);
+                    autoTrainInterval = null;
+                }
+            }, 150);
+        }
+        
+        function resetExperiment() {
+            iteration = 0;
+            accuracy = 0.15;
+            dataPoints = [{ x: 0, y: 15 }];
+            
+            document.getElementById('iteration').textContent = 0;
+            document.getElementById('accuracy').textContent = '15%';
+            document.getElementById('improvement').textContent = '+0%';
+            document.getElementById('convergence').textContent = '0.15';
+            
+            document.getElementById('chartLine').setAttribute('d', 'M50,200 L50,200');
+            document.getElementById('chartArea').setAttribute('d', 'M50,200 L50,200');
+            document.getElementById('dataPoints').innerHTML = '';
+            
+            document.getElementById('attention').textContent = '0.72';
+            document.getElementById('memory').textContent = '0.05';
+            document.getElementById('learning').textContent = '0.001';
+            document.getElementById('exploration').textContent = '0.15';
+        }
+        
+        function addTrainingData() {
+            const customAccuracy = parseFloat(prompt('Enter accuracy value (0-100):', '50'));
+            if (!isNaN(customAccuracy)) {
+                iteration++;
+                accuracy = customAccuracy / 100;
+                dataPoints.push({ x: iteration, y: customAccuracy });
+                updateChart();
+                updateParams();
+                updateComparison();
+            }
+        }
+        
+        function exportPrompt() {
+            const currentPrompt = promptVersions[promptVersions.length - 1].text;
+            const blob = new Blob([currentPrompt], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'best-prompt.txt';
+            a.click();
+        }
+        
+        function exportConfig() {
+            const config = {
+                iteration,
+                accuracy: accuracy.toFixed(2),
+                parameters: {
+                    attention: parseFloat(document.getElementById('attention').textContent),
+                    memory: parseFloat(document.getElementById('memory').textContent),
+                    learning: parseFloat(document.getElementById('learning').textContent),
+                    exploration: parseFloat(document.getElementById('exploration').textContent)
+                },
+                dataPoints: dataPoints
+            };
+            
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'agent-config.json';
+            a.click();
+        }
+        
+        // Initialize
+        updateChart();
+    </script>
+</body>
+</html>
