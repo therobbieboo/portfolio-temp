@@ -610,7 +610,7 @@
         function clearCanvas() {
             nodes.filter(n => !['node-1','node-2','node-3','node-4','node-5'].includes(n.id)).forEach(n => document.getElementById(n.id)?.remove());
             nodes = nodes.filter(n => ['node-1','node-2','node-3','node-4','node-5'].includes(n.id));
-            selectedNode = null;
+            let selectedNode = null;
             drawConnections();
         }
         
