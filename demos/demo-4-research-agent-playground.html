@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Agent Playground - Inner Product</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0d0d12;
+            --card: #16161e;
+            --border: #2a2a3a;
+            --accent: #6366f1;
+            --accent-dim: #6366f122;
+            --secondary: #22d3ee;
+            --text: #e8e8ed;
+            --text-dim: #8888a0;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+        
+        body {
+            font-family: 'SF Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        
+        .logo {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            border-radius: 6px;
+        }
+        
+        .badge {
+            background: var(--accent-dim);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Search Section */
+        .search-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .search-title {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .search-input {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 18px;
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+        
+        .search-btn {
+            background: var(--accent);
+            border: none;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .search-btn:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+        }
+        
+        .search-btn:disabled {
+            background: var(--text-dim);
+            cursor: not-allowed;
+        }
+        
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-chip {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-chip:hover {
+            border-color: var(--accent);
+        }
+        
+        .filter-chip.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+        }
+        
+        /* Results */
+        .results-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .results-count {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .paper-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .paper-item:hover {
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }
+        
+        .paper-item.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        
+        .paper-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        
+        .paper-meta {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .paper-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .paper-abstract {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 10px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* Analysis Panel */
+        .analysis-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .analysis-title {
+            font-size: 1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .analysis-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .analysis-section {
+            margin-bottom: 20px;
+        }
+        
+        .analysis-section h4 {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .summary-text {
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: var(--text-dim);
+        }
+        
+        .key-points {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .key-point {
+            background: var(--bg);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .key-point-icon {
+            color: var(--secondary);
+            font-size: 0.7rem;
+            margin-top: 2px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .metric-card {
+            background: var(--bg);
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+        
+        /* Compare Section */
+        .compare-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+        
+        .compare-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .compare-title {
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .compare-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        
+        .compare-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        
+        .compare-card h5 {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+        
+        .compare-metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .compare-metric:last-child {
+            border-bottom: none;
+        }
+        
+        .compare-value {
+            font-weight: 500;
+            color: var(--secondary);
+        }
+        
+        /* Actions */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .action-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        
+        .action-btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        
+        /* Loading */
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-dim);
+        }
+        
+        .loading.active {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .compare-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <span>Research Agent</span>
+            </div>
+            <div class="badge">🧪 Playground</div>
+        </header>
+        
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-header">
+                <div class="search-title">
+                    <span>🔍</span> Paper Search
+                </div>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search for papers... e.g., 'self-evolving agents', 'RLHF', 'multi-agent systems'">
+                <button class="search-btn" id="searchBtn" onclick="searchPapers()">
+                    <span>🔎</span> Search
+                </button>
+            </div>
+            
+            <div class="filters">
+                <div class="filter-chip active" onclick="setFilter('all', this)">All</div>
+                <div class="filter-chip" onclick="setFilter('cs.AI', this)">AI</div>
+                <div class="filter-chip" onclick="setFilter('cs.LG', this)">Machine Learning</div>
+                <div class="filter-chip" onclick="setFilter('cs.CL', this)">NLP</div>
+                <div class="filter-chip" onclick="setFilter('cs.RO', this)">Robotics</div>
+            </div>
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Results Panel -->
+            <div class="results-panel">
+                <div class="results-header">
+                    <div class="results-title">📄 Results</div>
+                    <div class="results-count" id="resultsCount">0 papers found</div>
+                </div>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    Searching arXiv...
+                </div>
+                
+                <div class="results-list" id="resultsList">
+                    <!-- Results will be populated here -->
+                    <div style="text-align: center; padding: 40px; color: var(--text-dim);">
+                        <p>🔬 Enter a search query to find relevant papers</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analysis Panel -->
+            <div class="analysis-panel">
+                <div class="analysis-title">
+                    <span>🧠</span> AI Analysis
+                </div>
+                
+                <div class="analysis-content" id="analysisContent">
+                    <div style="text-align: center; padding: 40px 20px; color: var(--text-dim);">
+                        <p>Select a paper to see AI-generated analysis</p>
+                    </div>
+                </div>
+                
+                <div class="action-buttons" id="actionButtons" style="display: none;">
+                    <button class="action-btn" onclick="exportSummary()">
+                        <span>📤</span> Export
+                    </button>
+                    <button class="action-btn primary" onclick="addToCompare()">
+                        <span>⚖️</span> Compare
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Compare Section -->
+        <div class="compare-section" id="compareSection" style="display: none;">
+            <div class="compare-header">
+                <div class="compare-title">
+                    <span>⚖️</span> Paper Comparison
+                </div>
+                <button class="action-btn" onclick="clearCompare()" style="width: auto; padding: 8px 16px;">
+                    Clear
+                </button>
+            </div>
+            
+            <div class="compare-grid" id="compareGrid">
+                <!-- Compare cards will be populated here -->
+            </div>
+        </div>
+        
+        <footer>
+            <p>Built by Inner Product | Powered by arXiv API</p>
+        </footer>
+    </div>
+    
+    <script>
+        // State
+        let papers = [];
+        let selectedPaper = null;
+        let compareList = [];
+        let currentFilter = 'all';
+        
+        // Demo papers data (simulated)
+        const demoPapers = [
+            {
+                id: '1',
+                title: 'Self-Evolving Agents: A Framework for Autonomous Agent Improvement',
+                authors: 'Chen, L., Wang, Y., Johnson, M.',
+                year: '2024',
+                category: 'cs.AI',
+                citations: 45,
+                abstract: 'We present a novel framework for self-evolving AI agents that continuously optimize their decision-making through environmental feedback loops. Our approach achieves 47% improvement in task completion rates.',
+                summary: 'This paper introduces a framework where agents can autonomously improve by analyzing their own performance and adjusting their strategies. The key innovation is a meta-learning approach that allows agents to evolve their prompts and decision trees.',
+                keyPoints: [
+                    '47% improvement in task completion',
+                    'Self-optimizing prompt generation',
+                    'Decision tree evolution over time'
+                ],
+                metrics: { novelty: 92, clarity: 88, relevance: 95 }
+            },
+            {
+                id: '2',
+                title: 'Agentic Gym: A Scalable Platform for Agent Evaluation',
+                authors: 'Smith, J., Davis, K., Brown, A.',
+                year: '2024',
+                category: 'cs.AI',
+                citations: 78,
+                abstract: 'We introduce Agentic Gym, a comprehensive platform for training and evaluating AI agents across diverse tasks. The platform supports 10,000+ evaluation workflows.',
+                summary: 'Agentic Gym provides a unified environment for testing AI agents. It includes various scenarios from code generation to customer service, enabling standardized evaluation of agent capabilities.',
+                keyPoints: [
+                    '10,000+ evaluation workflows',
+                    'Multi-domain testing',
+                    'Real-time metrics dashboard'
+                ],
+                metrics: { novelty: 85, clarity: 92, relevance: 98 }
+            },
+            {
+                id: '3',
+                title: 'Multi-Agent Reinforcement Learning for Complex Task Completion',
+                authors: 'Zhang, W., Liu, H., Park, S.',
+                year: '2024',
+                category: 'cs.LG',
+                citations: 56,
+                abstract: 'We propose a multi-agent reinforcement learning framework that enables efficient collaboration between AI agents for complex task completion.',
+                summary: 'This work explores how multiple AI agents can coordinate to solve tasks that are too complex for single agents. The framework uses a hierarchical communication protocol.',
+                keyPoints: [
+                    'Hierarchical agent communication',
+                    '38% faster task completion',
+                    'Scalable to 100+ agents'
+                ],
+                metrics: { novelty: 89, clarity: 85, relevance: 90 }
+            },
+            {
+                id: '4',
+                title: 'RLHF: Reinforcement Learning from Human Feedback',
+                authors: 'Ouyang, L., Brockman, G., Murati, M.',
+                year: '2022',
+                category: 'cs.LG',
+                citations: 1250,
+                abstract: 'We present RLHF, a method for fine-tuning language models using reinforcement learning from human feedback, enabling better alignment with human preferences.',
+                summary: 'This foundational paper introduces RLHF, now a standard technique for aligning AI systems with human values. It combines supervised learning with reward modeling.',
+                keyPoints: [
+                    '1250+ citations',
+                    'Standard for LLM alignment',
+                    'GPT-4 foundation'
+                ],
+                metrics: { novelty: 95, clarity: 90, relevance: 99 }
+            },
+            {
+                id: '5',
+                title: 'Toolformer: Language Models Can Learn to Use Tools',
+                authors: 'Schick, T., Dwivedi-Yu, J., Jiang, Y.',
+                year: '2023',
+                category: 'cs.CL',
+                citations: 320,
+                abstract: 'We introduce Toolformer, a model that learns to use external tools like calculators and search engines to improve its reasoning capabilities.',
+                summary: 'Toolformer demonstrates how language models can learn to invoke external APIs to augment their capabilities. This is a key step towards agentic AI systems.',
+                keyPoints: [
+                    'Self-taught tool usage',
+                    'Zero-shot tool learning',
+                    'Enhanced reasoning'
+                ],
+                metrics: { novelty: 91, clarity: 87, relevance: 94 }
+            }
+        ];
+        
+        function setFilter(filter, element) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+            element.classList.add('active');
+        }
+        
+        function searchPapers() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+            
+            const loading = document.getElementById('loading');
+            const resultsList = document.getElementById('resultsList');
+            
+            loading.classList.add('active');
+            resultsList.innerHTML = '';
+            
+            // Simulate search delay
+            setTimeout(() => {
+                let results = demoPapers.filter(p => 
+                    p.title.toLowerCase().includes(query.toLowerCase()) ||
+                    p.abstract.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                if (currentFilter !== 'all') {
+                    results = results.filter(p => p.category === currentFilter);
+                }
+                
+                papers = results;
+                displayResults(results);
+                loading.classList.remove('active');
+            }, 800);
+        }
+        
+        function displayResults(results) {
+            const resultsList = document.getElementById('resultsList');
+            document.getElementById('resultsCount').textContent = `${results.length} papers found`;
+            
+            if (results.length === 0) {
+                resultsList.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-dim);">No papers found. Try a different search.</div>';
+                return;
+            }
+            
+            resultsList.innerHTML = results.map(paper => `
+                <div class="paper-item" onclick="selectPaper('${paper.id}')" id="paper-${paper.id}">
+                    <div class="paper-title">${paper.title}</div>
+                    <div class="paper-meta">
+                        <span>👤 ${paper.authors}</span>
+                        <span>📅 ${paper.year}</span>
+                        <span>📚 ${paper.category}</span>
+                        <span>📈 ${paper.citations} citations</span>
+                    </div>
+                    <div class="paper-abstract">${paper.abstract}</div>
+                </div>
+            `).join('');
+        }
+        
+        function selectPaper(id) {
+            selectedPaper = papers.find(p => p.id === id);
+            
+            // Update selection UI
+            document.querySelectorAll('.paper-item').forEach(item => item.classList.remove('selected'));
+            document.getElementById('paper-' + id).classList.add('selected');
+            
+            // Display analysis
+            displayAnalysis(selectedPaper);
+            document.getElementById('actionButtons').style.display = 'flex';
+        }
+        
+        function displayAnalysis(paper) {
+            const content = document.getElementById('analysisContent');
+            
+            content.innerHTML = `
+                <div class="analysis-section">
+                    <h4>📝 Summary</h4>
+                    <p class="summary-text">${paper.summary}</p>
+                </div>
+                
+                <div class="analysis-section">
+                    <h4>🎯 Key Points</h4>
+                    <div class="key-points">
+                        ${paper.keyPoints.map(point => `
+                            <div class="key-point">
+                                <span class="key-point-icon">▸</span>
+                                <span>${point}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="analysis-section">
+                    <h4>📊 Metrics</h4>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">${paper.metrics.novelty}%</div>
+                            <div class="metric-label">Novelty</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${paper.metrics.clarity}%</div>
+                            <div class="metric-label">Clarity</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${paper.metrics.relevance}%</div>
+                            <div class="metric-label">Relevance</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${paper.citations}</div>
+                            <div class="metric-label">Citations</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function addToCompare() {
+            if (!selectedPaper || compareList.find(p => p.id === selectedPaper.id)) return;
+            
+            if (compareList.length >= 3) {
+                alert('Maximum 3 papers for comparison');
+                return;
+            }
+            
+            compareList.push(selectedPaper);
+            displayCompare();
+        }
+        
+        function displayCompare() {
+            const section = document.getElementById('compareSection');
+            const grid = document.getElementById('compareGrid');
+            
+            if (compareList.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            grid.innerHTML = compareList.map(paper => `
+                <div class="compare-card">
+                    <h5>${paper.title.substring(0, 40)}...</h5>
+                    <div class="compare-metric">
+                        <span>Year</span>
+                        <span class="compare-value">${paper.year}</span>
+                    </div>
+                    <div class="compare-metric">
+                        <span>Citations</span>
+                        <span class="compare-value">${paper.citations}</span>
+                    </div>
+                    <div class="compare-metric">
+                        <span>Novelty</span>
+                        <span class="compare-value">${paper.metrics.novelty}%</span>
+                    </div>
+                    <div class="compare-metric">
+                        <span>Relevance</span>
+                        <span class="compare-value">${paper.metrics.relevance}%</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function clearCompare() {
+            compareList = [];
+            displayCompare();
+        }
+        
+        function exportSummary() {
+            if (!selectedPaper) return;
+            
+            const content = `# ${selectedPaper.title}
+
+## Authors
+${selectedPaper.authors}
+
+## Abstract
+${selectedPaper.abstract}
+
+## Summary
+${selectedPaper.summary}
+
+## Key Points
+${selectedPaper.keyPoints.map(p => `- ${p}`).join('\n')}
+
+## Metrics
+- Novelty: ${selectedPaper.metrics.novelty}%
+- Clarity: ${selectedPaper.metrics.clarity}%
+- Relevance: ${selectedPaper.metrics.relevance}%
+- Citations: ${selectedPaper.citations}
+`;
+            
+            const blob = new Blob([content], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'paper-summary.md';
+            a.click();
+        }
+        
+        // Initialize
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchPapers();
+        });
+    </script>
+</body>
+</html>
