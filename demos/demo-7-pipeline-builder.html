@@ -33,7 +33,6 @@
             padding: 24px;
         }
         
-        /* Header */
         header {
             display: flex;
             justify-content: space-between;
@@ -68,14 +67,12 @@
             letter-spacing: 1px;
         }
         
-        /* Main Layout */
         .main-layout {
             display: grid;
             grid-template-columns: 280px 1fr 320px;
             gap: 24px;
         }
         
-        /* Component Library */
         .library {
             background: var(--card);
             border: 1px solid var(--border);
@@ -114,10 +111,6 @@
             transform: translateX(4px);
         }
         
-        .component-item.dragging {
-            opacity: 0.5;
-        }
-        
         .component-icon {
             font-size: 1.1rem;
         }
@@ -131,7 +124,6 @@
             color: var(--text-dim);
         }
         
-        /* Canvas */
         .canvas-container {
             background: var(--card);
             border: 1px solid var(--border);
@@ -190,7 +182,6 @@
             overflow: hidden;
         }
         
-        /* Pipeline Nodes */
         .node {
             position: absolute;
             background: var(--card);
@@ -199,7 +190,7 @@
             padding: 14px;
             min-width: 140px;
             cursor: move;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s;
         }
         
         .node:hover {
@@ -232,7 +223,6 @@
             color: var(--text-dim);
         }
         
-        /* Connections */
         .connections {
             position: absolute;
             top: 0;
@@ -250,17 +240,6 @@
             opacity: 0.5;
         }
         
-        .connection.active {
-            opacity: 1;
-            stroke-dasharray: 5;
-            animation: dash 1s linear infinite;
-        }
-        
-        @keyframes dash {
-            to { stroke-dashoffset: -10; }
-        }
-        
-        /* Properties Panel */
         .properties {
             background: var(--card);
             border: 1px solid var(--border);
@@ -318,12 +297,6 @@
             font-size: 0.8rem;
         }
         
-        .property-checkbox input {
-            width: 16px;
-            height: 16px;
-        }
-        
-        /* Generated Code */
         .code-preview {
             margin-top: 24px;
             background: var(--card);
@@ -346,6 +319,11 @@
             gap: 8px;
         }
         
+        .code-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
         .code-block {
             background: #0a0a0f;
             border-radius: 10px;
@@ -353,17 +331,18 @@
             font-family: 'SF Mono', monospace;
             font-size: 0.75rem;
             line-height: 1.6;
-            max-height: 300px;
+            max-height: 400px;
             overflow: auto;
-            color: var(--text-dim);
+            color: #a5b3ce;
+            white-space: pre;
         }
         
         .code-keyword { color: #c678dd; }
         .code-string { color: #98c379; }
         .code-comment { color: #5c6370; }
         .code-function { color: #61afef; }
+        .code-class { color: #e5c07b; }
         
-        /* Footer */
         footer {
             text-align: center;
             padding: 24px;
@@ -373,15 +352,9 @@
             margin-top: 24px;
         }
         
-        /* Responsive */
         @media (max-width: 1024px) {
-            .main-layout {
-                grid-template-columns: 1fr;
-            }
-            
-            .canvas {
-                min-height: 400px;
-            }
+            .main-layout { grid-template-columns: 1fr; }
+            .canvas { min-height: 400px; }
         }
     </style>
 </head>
@@ -396,10 +369,8 @@
         </header>
         
         <div class="main-layout">
-            <!-- Component Library -->
             <div class="library">
                 <div class="library-title">📦 Components</div>
-                
                 <div class="component-list">
                     <div class="component-item" draggable="true" data-type="input">
                         <span class="component-icon">📥</span>
@@ -408,15 +379,6 @@
                             <div class="component-category">Data Ingestion</div>
                         </div>
                     </div>
-                    
-                    <div class="component-item" draggable="true" data-type="parse">
-                        <span class="component-icon">🔤</span>
-                        <div>
-                            <div class="component-name">Text Parser</div>
-                            <div class="component-category">Preprocessing</div>
-                        </div>
-                    </div>
-                    
                     <div class="component-item" draggable="true" data-type="sentiment">
                         <span class="component-icon">😊</span>
                         <div>
@@ -424,7 +386,6 @@
                             <div class="component-category">AI Model</div>
                         </div>
                     </div>
-                    
                     <div class="component-item" draggable="true" data-type="classify">
                         <span class="component-icon">🏷️</span>
                         <div>
@@ -432,7 +393,6 @@
                             <div class="component-category">AI Model</div>
                         </div>
                     </div>
-                    
                     <div class="component-item" draggable="true" data-type="extract">
                         <span class="component-icon">🎯</span>
                         <div>
@@ -440,7 +400,6 @@
                             <div class="component-category">AI Model</div>
                         </div>
                     </div>
-                    
                     <div class="component-item" draggable="true" data-type="route">
                         <span class="component-icon">🔀</span>
                         <div>
@@ -448,15 +407,6 @@
                             <div class="component-category">Logic</div>
                         </div>
                     </div>
-                    
-                    <div class="component-item" draggable="true" data-type="transform">
-                        <span class="component-icon">🔄</span>
-                        <div>
-                            <div class="component-name">Transformer</div>
-                            <div class="component-category">Processing</div>
-                        </div>
-                    </div>
-                    
                     <div class="component-item" draggable="true" data-type="output">
                         <span class="component-icon">📤</span>
                         <div>
@@ -467,7 +417,6 @@
                 </div>
             </div>
             
-            <!-- Canvas -->
             <div class="canvas-container">
                 <div class="canvas-header">
                     <div class="canvas-title">
@@ -475,15 +424,11 @@
                     </div>
                     <div class="canvas-actions">
                         <button class="action-btn" onclick="clearCanvas()">Clear</button>
-                        <button class="action-btn" onclick="optimizePipeline()">⚡ Optimize</button>
-                        <button class="action-btn primary" onclick="generateCode()">Generate Code</button>
+                        <button class="action-btn primary" onclick="generateCode()">⚡ Generate</button>
                     </div>
                 </div>
-                
                 <div class="canvas" id="canvas">
                     <svg class="connections" id="connections"></svg>
-                    
-                    <!-- Initial nodes -->
                     <div class="node" id="node-1" style="top: 30px; left: 30%;">
                         <div class="node-header">
                             <span class="node-icon">📥</span>
@@ -491,49 +436,43 @@
                         </div>
                         <div class="node-body">API / Webhook</div>
                     </div>
-                    
                     <div class="node" id="node-2" style="top: 130px; left: 30%;">
                         <div class="node-header">
                             <span class="node-icon">😊</span>
                             <span class="node-title">Sentiment</span>
                         </div>
-                        <div class="node-body">GPT-4 / Claude</div>
+                        <div class="node-body">AI Model</div>
                     </div>
-                    
                     <div class="node" id="node-3" style="top: 130px; left: 70%;">
                         <div class="node-header">
                             <span class="node-icon">🏷️</span>
                             <span class="node-title">Classifier</span>
                         </div>
-                        <div class="node-body">Category routing</div>
+                        <div class="node-body">AI Model</div>
                     </div>
-                    
                     <div class="node" id="node-4" style="top: 230px; left: 50%;">
                         <div class="node-header">
                             <span class="node-icon">🔀</span>
                             <span class="node-title">Router</span>
                         </div>
-                        <div class="node-body">Condition: sentiment</div>
+                        <div class="node-body">Logic</div>
                     </div>
-                    
                     <div class="node" id="node-5" style="top: 330px; left: 50%;">
                         <div class="node-header">
                             <span class="node-icon">📤</span>
                             <span class="node-title">Output</span>
                         </div>
-                        <div class="node-body">JSON / Webhook</div>
+                        <div class="node-body">JSON</div>
                     </div>
                 </div>
             </div>
             
-            <!-- Properties -->
             <div class="properties">
                 <div class="properties-title">⚙️ Properties</div>
-                
                 <div class="property-group">
                     <div class="property-label">Selected Node</div>
                     <select class="property-select" id="nodeSelect" onchange="selectNode()">
-                        <option value="">-- Select Node --</option>
+                        <option value="">-- Select --</option>
                         <option value="node-1">Input Source</option>
                         <option value="node-2">Sentiment Analyzer</option>
                         <option value="node-3">Classifier</option>
@@ -541,108 +480,45 @@
                         <option value="node-5">Output</option>
                     </select>
                 </div>
-                
                 <div class="property-group" id="modelProps" style="display: none;">
-                    <div class="property-label">Model</div>
-                    <select class="property-select">
-                        <option>gpt-4</option>
-                        <option>claude-3</option>
-                        <option>gemini-pro</option>
-                        <option>llama-3</option>
+                    <div class="property-label">AI Model</div>
+                    <select class="property-select" id="modelSelect">
+                        <option value="gpt-4">GPT-4 (OpenAI)</option>
+                        <option value="claude-3">Claude 3 (Anthropic)</option>
+                        <option value="llama-3">Llama 3 (Meta)</option>
+                        <option value="mistral">Mistral (OpenSource)</option>
                     </select>
                 </div>
-                
-                <div class="property-group" id="tempProps" style="display: none;">
-                    <div class="property-label">Temperature</div>
-                    <input type="range" min="0" max="1" step="0.1" value="0.7" style="width: 100%;">
-                </div>
-                
                 <div class="property-group" id="promptProps" style="display: none;">
                     <div class="property-label">System Prompt</div>
-                    <textarea class="property-input" rows="3" placeholder="Enter system prompt..."></textarea>
+                    <textarea class="property-input" id="promptInput" rows="3" placeholder="Enter instructions..."></textarea>
                 </div>
-                
-                <div class="property-group" id="enableProps" style="display: none;">
+                <div class="property-group" id="cacheProps" style="display: none;">
                     <div class="property-checkbox">
-                        <input type="checkbox" checked>
+                        <input type="checkbox" id="cacheCheck" checked>
                         <span>Enable caching</span>
                     </div>
                 </div>
-                
                 <div class="property-group">
-                    <div class="property-label">Auto-evolve</div>
                     <div class="property-checkbox">
                         <input type="checkbox" id="autoEvolve" checked>
-                        <span>Self-optimize pipeline</span>
+                        <span>Self-evolve on feedback</span>
                     </div>
-                </div>
-                
-                <div class="property-group">
-                    <div class="property-label">Performance Target</div>
-                    <select class="property-select">
-                        <option>Balanced</option>
-                        <option>Speed (low latency)</option>
-                        <option>Quality (high accuracy)</option>
-                        <option>Cost (reduce tokens)</option>
-                    </select>
                 </div>
             </div>
         </div>
         
-        <!-- Code Preview -->
         <div class="code-preview">
             <div class="code-header">
                 <div class="code-title">
-                    <span>📄</span> Generated Python Code
+                    <span>📄</span> Generated Pipeline Code
                 </div>
-                <button class="action-btn" onclick="copyCode()">Copy</button>
+                <div class="code-actions">
+                    <button class="action-btn" onclick="downloadZip()">📦 Download Project</button>
+                    <button class="action-btn" onclick="copyCode()">📋 Copy</button>
+                </div>
             </div>
-            <div class="code-block" id="codeBlock">
-<span class="code-comment"># Self-Evolving Pipeline Generated by Inner Product</span>
-<span class="code-comment"># Version: auto-optimized</span>
-
-<span class="code-keyword">from</span> inner_product <span class="code-keyword">import</span> Pipeline, Agent, Router
-<span class="code-keyword">from</span> inner_product.models <span class="code-keyword">import</span> GPT4, Claude3
-
-<span class="code-comment"># Pipeline Configuration</span>
-pipeline = Pipeline(
-    name=<span class="code-string">"feedback-analysis"</span>,
-    auto_evolve=<span class="code-keyword">True</span>,
-    performance_target=<span class="code-string">"balanced"</span>
-)
-
-<span class="code-comment"># Input Stage</span>
-input_stage = pipeline.add_stage(<span class="code-string">"input"</span>)
-input_stage.source(<span class="code-string">"api"</span>)
-input_stage.webhook(<span class="code-string">"https://api.example.com/webhook"</span>)
-
-<span class="code-comment"># AI Processing Stages</span>
-sentiment_agent = pipeline.add_agent(<span class="code-string">"sentiment"</span>)
-sentiment_agent.model(GPT4, temperature=0.7)
-sentiment_agent.prompt(<span class="code-string">"Analyze sentiment..."</span>)
-sentiment_agent.enable_cache()
-
-classifier_agent = pipeline.add_agent(<span class="code-string">"classifier"</span>)
-classifier_agent.model(Claude3)
-classifier_agent.categories([<span class="code-string">"bug"</span>, <span class="code-string">"feature"</span>, <span class="code-string">"support"</span>])
-
-<span class="code-comment"># Routing Logic</span>
-router = pipeline.add_router(<span class="code-string">"sentiment_router"</span>)
-router.condition(<span class="code-string">"sentiment.score"</span>, <span class="code-string">">"</span>, 0.7)
-router.route(<span class="code-string">"positive"</span>, <span class="code-string">"auto_respond"</span>)
-router.route(<span class="code-string">"negative"</span>, <span class="code-string">"escalate"</span>)
-router.route(<span class="code-string">"neutral"</span>, <span class="code-string">"analyze"</span>)
-
-<span class="code-comment"># Output Stage</span>
-output_stage = pipeline.add_stage(<span class="code-string">"output"</span>)
-output_stage.format(<span class="code-string">"json"</span>)
-output_stage.webhook(<span class="code-string">"https://api.example.com/results"</span>)
-
-<span class="code-comment"># Execute Pipeline</span>
-<span class="code-keyword">if</span> __name__ == <span class="code-string">"__main__"</span>:
-    pipeline.deploy()
-    pipeline.serve()
-            </div>
+            <div class="code-block" id="codeBlock"><span class="code-comment"># Click "Generate" to create your pipeline code</span></div>
         </div>
         
         <footer>
@@ -651,7 +527,6 @@ output_stage.webhook(<span class="code-string">"https://api.example.com/results"
     </div>
     
     <script>
-        // State
         let nodes = [
             { id: 'node-1', type: 'input', title: 'Input', icon: '📥' },
             { id: 'node-2', type: 'sentiment', title: 'Sentiment', icon: '😊' },
@@ -659,102 +534,62 @@ output_stage.webhook(<span class="code-string">"https://api.example.com/results"
             { id: 'node-4', type: 'route', title: 'Router', icon: '🔀' },
             { id: 'node-5', type: 'output', title: 'Output', icon: '📤' }
         ];
-        let selectedNode = null;
         
-        // Initialize drag and drop
         document.querySelectorAll('.component-item').forEach(item => {
             item.addEventListener('dragstart', (e) => {
                 e.dataTransfer.setData('type', item.dataset.type);
-                item.classList.add('dragging');
-            });
-            
-            item.addEventListener('dragend', () => {
-                item.classList.remove('dragging');
             });
         });
         
         const canvas = document.getElementById('canvas');
-        
-        canvas.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
-        
+        canvas.addEventListener('dragover', (e) => e.preventDefault());
         canvas.addEventListener('drop', (e) => {
             e.preventDefault();
             const type = e.dataTransfer.getData('type');
-            if (type) {
-                addNode(type, e.offsetX, e.offsetY);
-            }
+            if (type) addNode(type, e.offsetX, e.offsetY);
         });
         
         function addNode(type, x, y) {
             const types = {
-                'input': { icon: '📥', title: 'Input', body: 'API / Webhook' },
-                'parse': { icon: '🔤', title: 'Parser', body: 'Text parsing' },
-                'sentiment': { icon: '😊', title: 'Sentiment', body: 'GPT-4' },
-                'classify': { icon: '🏷️', title: 'Classifier', body: 'Categorize' },
-                'extract': { icon: '🎯', title: 'Extractor', body: 'Entities' },
-                'route': { icon: '🔀', title: 'Router', body: 'Condition' },
-                'transform': { icon: '🔄', title: 'Transform', body: 'Process' },
+                'input': { icon: '📥', title: 'Input', body: 'API' },
+                'sentiment': { icon: '😊', title: 'Sentiment', body: 'AI Model' },
+                'classify': { icon: '🏷️', title: 'Classifier', body: 'AI Model' },
+                'extract': { icon: '🎯', title: 'Extractor', body: 'NER' },
+                'route': { icon: '🔀', title: 'Router', body: 'Logic' },
                 'output': { icon: '📤', title: 'Output', body: 'JSON' }
             };
-            
             const config = types[type];
             const id = 'node-' + Date.now();
-            
             const node = document.createElement('div');
             node.className = 'node';
             node.id = id;
             node.style.left = x + 'px';
             node.style.top = y + 'px';
-            node.innerHTML = `
-                <div class="node-header">
-                    <span class="node-icon">${config.icon}</span>
-                    <span class="node-title">${config.title}</span>
-                </div>
-                <div class="node-body">${config.body}</div>
-            `;
-            
-            node.addEventListener('click', () => selectNodeById(id));
-            
+            node.innerHTML = `<div class="node-header"><span class="node-icon">${config.icon}</span><span class="node-title">${config.title}</span></div><div class="node-body">${config.body}</div>`;
+            node.onclick = () => selectNodeById(id);
             canvas.appendChild(node);
-            
             nodes.push({ id, type, title: config.title, icon: config.icon });
             drawConnections();
         }
         
         function selectNode() {
-            const id = document.getElementById('nodeSelect').value;
-            selectNodeById(id);
+            selectNodeById(document.getElementById('nodeSelect').value);
         }
         
         function selectNodeById(id) {
-            selectedNode = id;
-            
             document.querySelectorAll('.node').forEach(n => n.classList.remove('selected'));
             if (id) {
-                document.getElementById(id).classList.add('selected');
+                document.getElementById(id)?.classList.add('selected');
+                const node = nodes.find(n => n.id === id);
+                const isAI = node && ['sentiment', 'classify', 'extract'].includes(node.type);
+                document.getElementById('modelProps').style.display = isAI ? 'block' : 'none';
+                document.getElementById('promptProps').style.display = isAI ? 'block' : 'none';
+                document.getElementById('cacheProps').style.display = isAI ? 'block' : 'none';
             }
-            
-            // Show relevant properties
-            const modelProps = document.getElementById('modelProps');
-            const tempProps = document.getElementById('tempProps');
-            const promptProps = document.getElementById('promptProps');
-            const enableProps = document.getElementById('enableProps');
-            
-            const node = nodes.find(n => n.id === id);
-            const isAI = node && ['sentiment', 'classify', 'extract'].includes(node.type);
-            
-            modelProps.style.display = isAI ? 'block' : 'none';
-            tempProps.style.display = isAI ? 'block' : 'none';
-            promptProps.style.display = isAI ? 'block' : 'none';
-            enableProps.style.display = isAI ? 'block' : 'none';
         }
         
         function drawConnections() {
             const svg = document.getElementById('connections');
-            let paths = '';
-            
             const positions = [
                 { id: 'node-1', x: 210, y: 80 },
                 { id: 'node-2', x: 210, y: 180 },
@@ -762,130 +597,201 @@ output_stage.webhook(<span class="code-string">"https://api.example.com/results"
                 { id: 'node-4', x: 350, y: 280 },
                 { id: 'node-5', x: 350, y: 380 }
             ];
-            
-            const connections = [
-                ['node-1', 'node-2'],
-                ['node-1', 'node-3'],
-                ['node-2', 'node-4'],
-                ['node-3', 'node-4'],
-                ['node-4', 'node-5']
-            ];
-            
+            const connections = [['node-1', 'node-2'], ['node-1', 'node-3'], ['node-2', 'node-4'], ['node-3', 'node-4'], ['node-4', 'node-5']];
+            let paths = '';
             connections.forEach(([from, to]) => {
-                const fromPos = positions.find(p => p.id === from);
-                const toPos = positions.find(p => p.id === to);
-                
-                if (fromPos && toPos) {
-                    paths += `<path class="connection" d="M ${fromPos.x} ${fromPos.y} C ${fromPos.x} ${(fromPos.y + toPos.y)/2}, ${toPos.x} ${(fromPos.y + toPos.y)/2}, ${toPos.x} ${toPos.y}" />`;
-                }
+                const f = positions.find(p => p.id === from);
+                const t = positions.find(p => p.id === to);
+                if (f && t) paths += `<path class="connection" d="M ${f.x} ${f.y} C ${f.x} ${(f.y + t.y)/2}, ${t.x} ${(f.y + t.y)/2}, ${t.x} ${t.y}" />`;
             });
-            
             svg.innerHTML = paths;
         }
         
         function clearCanvas() {
-            const defaultNodes = ['node-1', 'node-2', 'node-3', 'node-4', 'node-5'];
-            nodes.forEach(n => {
-                if (!defaultNodes.includes(n.id)) {
-                    document.getElementById(n.id)?.remove();
-                }
-            });
-            
-            nodes = nodes.filter(n => defaultNodes.includes(n.id));
+            nodes.filter(n => !['node-1','node-2','node-3','node-4','node-5'].includes(n.id)).forEach(n => document.getElementById(n.id)?.remove());
+            nodes = nodes.filter(n => ['node-1','node-2','node-3','node-4','node-5'].includes(n.id));
             selectedNode = null;
             drawConnections();
-            
-            document.getElementById('nodeSelect').value = '';
-            document.querySelectorAll('.node').forEach(n => n.classList.remove('selected'));
         }
         
-        function optimizePipeline() {
-            const codeBlock = document.getElementById('codeBlock');
-            codeBlock.innerHTML = `
-<span class="code-comment"># 🔄 Auto-Optimizing Pipeline...</span>
-<span class="code-comment"># Analyzing flow patterns...</span>
-<span class="code-comment"># Optimizing for performance...</span>
-
-<span class="code-keyword">import</span> asyncio
-
-<span class="code-comment"># Optimized Pipeline with Parallel Execution</span>
-<span class="code-keyword">async</span> <span class="code-keyword">def</span> <span class="code-function">process_feedback</span>(data):
-    <span class="code-comment"># Parallel sentiment + classification</span>
-    sentiment_task = analyze_sentiment(data)
-    classify_task = classify_feedback(data)
-    
-    sentiment, category = <span class="code-keyword">await</span> asyncio.gather(
-        sentiment_task, classify_task
-    )
-    
-    <span class="code-comment"># Smart routing based on combined score</span>
-    score = calculate_priority(sentiment, category)
-    
-    <span class="code-keyword">if</span> score > 0.8:
-        <span class="code-keyword">return</span> escalate(data)
-    <span class="code-keyword">elif</span> score > 0.5:
-        <span class="code-keyword">return</span> respond(data)
-    <span class="code-keyword">else</span>:
-        <span class="code-keyword">return</span> archive(data)
-
-<span class="code-comment"># Caching enabled - 40% cost reduction</span>
-<span class="code-keyword">from</span> functools <span class="code-keyword">import</span> lru_cache
-
-<span class="code-function">@lru_cache</span>(maxsize=1000)
-<span class="code-keyword">async</span> <span class="code-keyword">def</span> <span class="code-function">analyze_sentiment</span>(text):
-    <span class="code-comment"># Cached LLM calls</span>
-    <span class="code-keyword">pass</span>
-            `        }
-        
         function generateCode() {
-            const codeBlock = document.getElementById('codeBlock');
-            codeBlock.innerHTML = `
-<span class="code-comment"># Self-Evolving Pipeline - Generated Python</span>
-<span class="code-comment"># Optimized for: Balanced</span>
+            const model = document.getElementById('modelSelect')?.value || 'llama-3';
+            const prompt = document.getElementById('promptInput')?.value || 'Analyze sentiment';
+            const cache = document.getElementById('cacheCheck')?.checked;
+            const autoEvolve = document.getElementById('autoEvolve')?.checked;
+            
+            const code = `# ${'='.repeat(50)}
+# Self-Evolving AI Pipeline
+# Generated by Inner Product Pipeline Builder
+# Model: ${model} | Auto-Evolve: ${autoEvolve}
+${'='.repeat(50)}
 
-<span class="code-keyword">from</span> inner_product <span class="code-keyword">import</span> Pipeline, Agent, Router
-<span class="code-keyword">from</span> inner_product.models <span class="code-keyword">import</span> GPT4, Claude3
 <span class="code-keyword">import</span> asyncio
+<span class="code-keyword">from</span> typing <span class="code-keyword">import</span> List, Dict, Any
+<span class="code-keyword">from</span> dataclasses <span class="code-keyword">import</span> dataclass
+<span class="code-keyword">from</span> enum <span class="code-keyword">import</span> Enum
 
-<span class="code-comment"># Initialize Pipeline</span>
-pipeline = Pipeline(
-    name=<span class="code-string">"feedback-analysis"</span>,
-    auto_evolve=<span class="code-keyword">True</span>,
-    cache_enabled=<span class="code-keyword">True</span>
-)
+<span class="code-comment"># ============== Configuration ==============</span>
+<span class="code-class">class</span> <span class="code-class">Config</span>:
+    MODEL = <span class="code-string">"${model}"</span>
+    TEMPERATURE = 0.7
+    MAX_TOKENS = 2000
+    ENABLE_CACHE = ${cache}
+    AUTO_EVOLVE = ${autoEvolve}
+    SYSTEM_PROMPT = <span class="code-string">"""${prompt}"""</span>
 
-<span class="code-comment"># Stage 1: Input</span>
-input_source = pipeline.input(<span class="code-string">"api"</span>)
+<span class="code-comment"># ============== Pipeline Stages ==============</span>
+<span class="code-class">class</span> <span class="code-class">PipelineStage</span>(Enum):
+    INPUT = <span class="code-string">"input"</span>
+    SENTIMENT = <span class="code-string">"sentiment"</span>
+    CLASSIFY = <span class="code-string">"classify"</span>
+    ROUTE = <span class="code-string">"route"</span>
+    OUTPUT = <span class="code-string">"output"</span>
 
-<span class="code-comment"># Stage 2: Parallel Processing</span>
-<span class="code-keyword">async</span> <span class="code-keyword">def</span> <span class="code-function">process_parallel</span>(data):
-    sentiment, category = <span class="code-keyword">await</span> asyncio.gather(
-        pipeline.call_agent(<span class="code-string">"sentiment"</span>, data),
-        pipeline.call_agent(<span class="code-string">"classifier"</span>, data)
+<span class="code-class">@dataclass</span>
+<span class="code-class">class</span> <span class="code-class">FeedbackItem</span>:
+    text: str
+    sentiment: str = <span class="code-string">"unknown"</span>
+    category: str = <span class="code-string">"general"</span>
+    confidence: float = 0.0
+    entities: List[str] = <span class="code-keyword">None</span>
+    
+    <span class="code-keyword">def</span> <span class="code-function">__post_init__</span>(self):
+        <span class="code-keyword">if</span> self.entities <span class="code-keyword">is</span> <span class="code-keyword">None</span>:
+            self.entities = []
+
+<span class="code-class">@dataclass</span>
+<span class="code-class">class</span> <span class="code-class">PipelineResult</span>:
+    items: List[FeedbackItem]
+    metrics: Dict[str, Any]
+    evolution_log: List[Dict[str, Any]]
+
+<span class="code-comment"># ============== AI Models ==============</span>
+<span class="code-keyword">async def</span> <span class="code-function">call_ai_model</span>(prompt: str, system_prompt: str) -> str:
+    <span class="code-comment">"""Call AI model with prompt. Replace with actual API call."""</span>
+    <span class="code-comment"># Example for OpenAI:</span>
+    <span class="code-comment"># from openai import AsyncOpenAI</span>
+    <span class="code-comment"># client = AsyncOpenAI()</span>
+    <span class="code-comment"># response = await client.chat.completions.create(</span>
+    <span class="code-comment">#     model=Config.MODEL,</span>
+    <span class="code-comment">#     messages=[{"role": "system", "content": system_prompt},</span>
+    <span class="code-comment">#              {"role": "user", "content": prompt}]</span>
+    <span class="code-comment"># )</span>
+    <span class="code-keyword">return</span> <span class="code-string">"AI response placeholder"</span>
+
+<span class="code-keyword">async def</span> <span class="code-function">analyze_sentiment</span>(text: str) -> Dict[str, Any]:
+    <span class="code-comment">"""Stage 1: Sentiment Analysis"""</span>
+    prompt = <span class="code-string">f"Analyze sentiment: {text}"</span>
+    result = <span class="code-keyword">await</span> call_ai_model(prompt, Config.SYSTEM_PROMPT)
+    <span class="code-keyword">return</span> {
+        <span class="code-string">"sentiment"</span>: <span class="code-string">"positive"</span>,
+        <span class="code-string">"confidence"</span>: 0.92
+    }
+
+<span class="code-keyword">async def</span> <span class="code-function">classify_category</span>(text: str) -> Dict[str, Any]:
+    <span class="code-comment">"""Stage 2: Category Classification"""</span>
+    prompt = <span class="code-string">f"Classify: {text}"</span>
+    result = <span class="code-keyword">await</span> call_ai_model(prompt, Config.SYSTEM_PROMPT)
+    <span class="code-keyword">return</span> {
+        <span class="code-string">"category"</span>: <span class="code-string">"feature_request"</span>,
+        <span class="code-string">"confidence"</span>: 0.88
+    }
+
+<span class="code-keyword">def</span> <span class="code-function">route_feedback</span>(sentiment: str, category: str) -> str:
+    <span class="code-comment">"""Stage 3: Route based on analysis"""</span>
+    <span class="code-keyword">if</span> sentiment == <span class="code-string">"negative"</span> <span class="code-keyword">and</span> category == <span class="code-string">"bug"</span>:
+        <span class="code-keyword">return</span> <span class="code-string">"escalate"</span>
+    <span class="code-keyword">elif</span> sentiment == <span class="code-string">"positive"</span>:
+        <span class="code-keyword">return</span> <span class="code-string">"auto_respond"</span>
+    <span class="code-keyword">return</span> <span class="code-string">"analyze_deep"</span>
+
+<span class="code-comment"># ============== Main Pipeline ==============</span>
+<span class="code-keyword">async def</span> <span class="code-function">run_pipeline</span>(feedbacks: List[str]) -> PipelineResult:
+    <span class="code-comment">"""Execute the full pipeline"""</span>
+    results = []
+    evolution_log = []
+    
+    <span class="code-keyword">for</span> text <span class="code-keyword">in</span> feedbacks:
+        <span class="code-comment"># Stage 1: Input</span>
+        item = FeedbackItem(text=text)
+        
+        <span class="code-comment"># Stage 2: Sentiment Analysis</span>
+        sentiment_result = <span class="code-keyword">await</span> analyze_sentiment(text)
+        item.sentiment = sentiment_result[<span class="code-string">"sentiment"</span>]
+        item.confidence = sentiment_result[<span class="code-string">"confidence"</span>]
+        
+        <span class="code-comment"># Stage 3: Classification</span>
+        category_result = <span class="code-keyword">await</span> classify_category(text)
+        item.category = category_result[<span class="code-string">"category"</span>]
+        
+        <span class="code-comment"># Stage 4: Routing</span>
+        route = route_feedback(item.sentiment, item.category)
+        
+        <span class="code-comment"># Log evolution</span>
+        evolution_log.append({
+            <span class="code-string">"text"</span>: text[:50],
+            <span class="code-string">"route"</span>: route,
+            <span class="code-string">"confidence"</span>: item.confidence
+        })
+        
+        results.append(item)
+    
+    <span class="code-keyword">return</span> PipelineResult(
+        items=results,
+        metrics={<span class="code-string">"total"</span>: len(results), <span class="code-string">"avg_confidence"</span>: 0.9},
+        evolution_log=evolution_log
     )
-    <span class="code-keyword">return</span> {<span class="code-string">"sentiment"</span>: sentiment, <span class="code-string">"category"</span>: category}
 
-<span class="code-comment"># Stage 3: Routing</span>
-router = pipeline.route(condition=<span class="code-string">"sentiment.score"</span>)
-router.cases({
-    <span class="code-string">"positive"</span>: <span class="code-string">"auto_respond"</span>,
-    <span class="code-string">"negative"</span>: <span class="code-string">"escalate"</span>,
-    <span class="code-string">"neutral"</span>: <span class="code-string">"analyze"</span>
-})
+<span class="code-comment"># ============== Self-Evolution ==============</span>
+<span class="code-keyword">async def</span> <span class="code-function">evolve_pipeline</span>(results: PipelineResult):
+    <span class="code-comment">"""Self-evolve based on feedback"""</span>
+    <span class="code-keyword">if not</span> Config.AUTO_EVOLVE:
+        <span class="code-keyword">return</span>
+    
+    <span class="code-comment"># Analyze performance</span>
+    low_conf = [r <span class="code-keyword">for</span> r in results.items <span class="code-keyword">if</span> r.confidence < 0.8]
+    
+    <span class="code-keyword">if</span> low_conf:
+        <span class="code-comment"># Evolve prompt based on failures</span>
+        print(<span class="code-string">f"Evolving: {len(low_conf)} items had low confidence"</span>)
 
-<span class="code-comment"># Execute</span>
+<span class="code-comment"># ============== Entry Point ==============</span>
+<span class="code-keyword">async def</span> <span class="code-function">main</span>():
+    feedbacks = [
+        <span class="code-string">"Great product, love the new features!"</span>,
+        <span class="code-string">"Bug in login, can't access account"</span>,
+        <span class="code-string">"Feature request: dark mode"</span>
+    ]
+    
+    result = <span class="code-keyword">await</span> run_pipeline(feedbacks)
+    <span class="code-keyword">await</span> evolve_pipeline(result)
+    
+    <span class="code-keyword">for</span> item <span class="code-keyword">in</span> result.items:
+        print(f<span class="code-string">"{item.text[:30]}... -> {item.sentiment}, {item.category}"</span>)
+
 <span class="code-keyword">if</span> __name__ == <span class="code-string">"__main__"</span>:
-    pipeline.deploy(platform=<span class="code-string">"aws_lambda"</span>)
-            `;
+    asyncio.run(main())
+`;
+            
+            document.getElementById('codeBlock').innerHTML = code;
         }
         
         function copyCode() {
             const code = document.getElementById('codeBlock').innerText;
             navigator.clipboard.writeText(code);
-            alert('Code copied to clipboard!');
+            alert('Code copied!');
         }
         
-        // Initialize
+        function downloadZip() {
+            const code = document.getElementById('codeBlock').innerText;
+            const blob = new Blob([code], { type: 'text/python' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'inner_product_pipeline.py';
+            a.click();
+        }
+        
         drawConnections();
     </script>
 </body>

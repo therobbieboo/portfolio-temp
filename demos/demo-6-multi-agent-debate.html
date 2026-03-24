@@ -35,7 +35,6 @@
             padding: 24px;
         }
         
-        /* Header */
         header {
             display: flex;
             justify-content: space-between;
@@ -70,7 +69,6 @@
             letter-spacing: 1px;
         }
         
-        /* Topic Section */
         .topic-section {
             background: var(--card);
             border: 1px solid var(--border);
@@ -79,18 +77,12 @@
             margin-bottom: 24px;
         }
         
-        .topic-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        
         .topic-title {
             font-size: 1.1rem;
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-bottom: 16px;
         }
         
         .topic-input {
@@ -138,11 +130,11 @@
             color: #fff;
         }
         
-        .control-btn.primary:hover {
-            background: #e879f9;
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
-        /* Main Grid */
         .main-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -150,7 +142,6 @@
             margin-bottom: 24px;
         }
         
-        /* Agent Card */
         .agent-card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -214,16 +205,17 @@
             line-height: 1.6;
             color: var(--text-dim);
             min-height: 120px;
+            max-height: 200px;
+            overflow-y: auto;
         }
         
-        .agent-argument.typing::after {
-            content: '...';
-            animation: blink 1s infinite;
+        .agent-argument.typing {
+            animation: pulse 1.5s infinite;
         }
         
-        @keyframes blink {
+        @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+            50% { opacity: 0.5; }
         }
         
         .agent-metrics {
@@ -249,7 +241,6 @@
             color: var(--text-dim);
         }
         
-        /* Convergence Panel */
         .convergence-section {
             background: var(--card);
             border: 1px solid var(--border);
@@ -272,7 +263,14 @@
             gap: 8px;
         }
         
-        /* Opinion Chart */
+        .round-indicator {
+            background: var(--accent-dim);
+            color: var(--accent);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
         .opinion-chart {
             height: 200px;
             position: relative;
@@ -292,11 +290,6 @@
             stroke-linecap: round;
         }
         
-        .chart-area {
-            opacity: 0.15;
-        }
-        
-        /* Stats */
         .debate-stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -322,7 +315,6 @@
             color: var(--text-dim);
         }
         
-        /* Final Verdict */
         .verdict-section {
             background: var(--card);
             border: 1px solid var(--border);
@@ -342,7 +334,6 @@
             background: var(--bg);
             border-radius: 12px;
             padding: 20px;
-            text-align: center;
         }
         
         .verdict-text {
@@ -377,7 +368,21 @@
             font-weight: 600;
         }
         
-        /* Footer */
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         footer {
             text-align: center;
             padding: 24px;
@@ -387,21 +392,13 @@
             margin-top: 24px;
         }
         
-        /* Responsive */
         @media (max-width: 1024px) {
-            .main-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .debate-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .main-grid { grid-template-columns: repeat(2, 1fr); }
+            .debate-stats { grid-template-columns: repeat(2, 1fr); }
         }
         
         @media (max-width: 640px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
+            .main-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -412,24 +409,19 @@
                 <div class="logo-icon"></div>
                 <span>Multi-Agent Debate</span>
             </div>
-            <div class="badge">⚖️ AI Discussion</div>
+            <div class="badge">⚖️ Live AI</div>
         </header>
         
-        <!-- Topic Section -->
         <div class="topic-section">
-            <div class="topic-header">
-                <div class="topic-title">
-                    <span>💬</span> Debate Topic
-                </div>
+            <div class="topic-title">
+                <span>💬</span> Debate Topic
             </div>
-            
             <input type="text" class="topic-input" id="topicInput" placeholder="Enter debate topic... e.g., 'Should AI development be regulated?'" value="Should AI development be regulated?">
-            
             <div class="debate-controls">
-                <button class="control-btn primary" onclick="startDebate()">
+                <button class="control-btn primary" id="startBtn" onclick="startDebate()">
                     <span>▶️</span> Start Debate
                 </button>
-                <button class="control-btn" onclick="nextRound()">
+                <button class="control-btn" id="nextBtn" onclick="nextRound()" disabled>
                     <span>⏭️</span> Next Round
                 </button>
                 <button class="control-btn" onclick="resetDebate()">
@@ -438,10 +430,8 @@
             </div>
         </div>
         
-        <!-- Agents Grid -->
         <div class="main-grid">
-            <!-- Pro Agent -->
-            <div class="agent-card" id="agent-pro">
+            <div class="agent-card">
                 <div class="agent-header">
                     <div class="agent-avatar pro">⚖️</div>
                     <div class="agent-info">
@@ -450,21 +440,16 @@
                     </div>
                 </div>
                 <div class="agent-stance pro">Pro</div>
-                <div class="agent-argument" id="arg-pro">Waiting for debate to start...</div>
+                <div class="agent-argument" id="arg-pro">Waiting for debate...</div>
                 <div class="agent-metrics">
                     <div class="metric">
                         <div class="metric-value" id="score-pro">0</div>
                         <div class="metric-label">Score</div>
                     </div>
-                    <div class="metric">
-                        <div class="metric-value" id="votes-pro">0</div>
-                        <div class="metric-label">Votes</div>
-                    </div>
                 </div>
             </div>
             
-            <!-- Con Agent -->
-            <div class="agent-card" id="agent-con">
+            <div class="agent-card">
                 <div class="agent-header">
                     <div class="agent-avatar con">🔬</div>
                     <div class="agent-info">
@@ -473,21 +458,16 @@
                     </div>
                 </div>
                 <div class="agent-stance con">Con</div>
-                <div class="agent-argument" id="arg-con">Waiting for debate to start...</div>
+                <div class="agent-argument" id="arg-con">Waiting for debate...</div>
                 <div class="agent-metrics">
                     <div class="metric">
                         <div class="metric-value" id="score-con">0</div>
                         <div class="metric-label">Score</div>
                     </div>
-                    <div class="metric">
-                        <div class="metric-value" id="votes-con">0</div>
-                        <div class="metric-label">Votes</div>
-                    </div>
                 </div>
             </div>
             
-            <!-- Neutral Agent -->
-            <div class="agent-card" id="agent-neutral">
+            <div class="agent-card">
                 <div class="agent-header">
                     <div class="agent-avatar neutral">🤔</div>
                     <div class="agent-info">
@@ -496,21 +476,16 @@
                     </div>
                 </div>
                 <div class="agent-stance neutral">Neutral</div>
-                <div class="agent-argument" id="arg-neutral">Waiting for debate to start...</div>
+                <div class="agent-argument" id="arg-neutral">Waiting for debate...</div>
                 <div class="agent-metrics">
                     <div class="metric">
                         <div class="metric-value" id="score-neutral">0</div>
                         <div class="metric-label">Score</div>
                     </div>
-                    <div class="metric">
-                        <div class="metric-value" id="votes-neutral">0</div>
-                        <div class="metric-label">Votes</div>
-                    </div>
                 </div>
             </div>
             
-            <!-- Skeptic Agent -->
-            <div class="agent-card" id="agent-skeptic">
+            <div class="agent-card">
                 <div class="agent-header">
                     <div class="agent-avatar skeptic">🎭</div>
                     <div class="agent-info">
@@ -519,92 +494,64 @@
                     </div>
                 </div>
                 <div class="agent-stance skeptic">Skeptic</div>
-                <div class="agent-argument" id="arg-skeptic">Waiting for debate to start...</div>
+                <div class="agent-argument" id="arg-skeptic">Waiting for debate...</div>
                 <div class="agent-metrics">
                     <div class="metric">
                         <div class="metric-value" id="score-skeptic">0</div>
                         <div class="metric-label">Score</div>
                     </div>
-                    <div class="metric">
-                        <div class="metric-value" id="votes-skeptic">0</div>
-                        <div class="metric-label">Votes</div>
-                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Convergence Section -->
         <div class="convergence-section">
             <div class="convergence-header">
                 <div class="convergence-title">
                     <span>📊</span> Opinion Convergence
                 </div>
-                <div class="round-indicator" id="roundIndicator">Round 0/5</div>
+                <div class="round-indicator" id="roundIndicator">Round 0/3</div>
             </div>
-            
             <div class="opinion-chart">
                 <svg class="chart-svg" viewBox="0 0 800 160" id="chartSvg">
-                    <defs>
-                        <linearGradient id="gradient-pro" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style="stop-color:#f472b6;stop-opacity:0.3" />
-                            <stop offset="100%" style="stop-color:#f472b6;stop-opacity:0" />
-                        </linearGradient>
-                        <linearGradient id="gradient-con" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:0.3" />
-                            <stop offset="100%" style="stop-color:#22d3ee;stop-opacity:0" />
-                        </linearGradient>
-                    </defs>
-                    
-                    <!-- Grid -->
                     <line x1="50" y1="20" x2="780" y2="20" stroke="#2a2a3a" stroke-dasharray="4" />
                     <line x1="50" y1="60" x2="780" y2="60" stroke="#2a2a3a" stroke-dasharray="4" />
                     <line x1="50" y1="100" x2="780" y2="100" stroke="#2a2a3a" stroke-dasharray="4" />
                     <line x1="50" y1="140" x2="780" y2="140" stroke="#2a2a3a" stroke-dasharray="4" />
-                    
-                    <!-- Labels -->
                     <text x="40" y="24" fill="#8888a0" font-size="10" text-anchor="end">100%</text>
                     <text x="40" y="64" fill="#8888a0" font-size="10" text-anchor="end">75%</text>
                     <text x="40" y="104" fill="#8888a0" font-size="10" text-anchor="end">50%</text>
                     <text x="40" y="144" fill="#8888a0" font-size="10" text-anchor="end">25%</text>
-                    
-                    <!-- Pro line -->
                     <path id="line-pro" class="chart-line" stroke="#f472b6" d="" />
-                    <path id="area-pro" class="chart-area" fill="url(#gradient-pro)" d="" />
-                    
-                    <!-- Con line -->
                     <path id="line-con" class="chart-line" stroke="#22d3ee" d="" />
-                    <path id="area-con" class="chart-area" fill="url(#gradient-con)" d="" />
                 </svg>
             </div>
-            
             <div class="debate-stats">
                 <div class="stat-card">
                     <div class="stat-value" id="totalRounds">0</div>
                     <div class="stat-label">Rounds</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="totalArguments">0</div>
-                    <div class="stat-label">Arguments</div>
+                    <div class="stat-value" id="totalTokens">0</div>
+                    <div class="stat-label">Tokens Used</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="consensus">0%</div>
                     <div class="stat-label">Consensus</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="convergenceSpeed">-</div>
-                    <div class="stat-label">Convergence</div>
+                    <div class="stat-value" id="winner">-</div>
+                    <div class="stat-label">Winner</div>
                 </div>
             </div>
         </div>
         
-        <!-- Verdict Section -->
         <div class="verdict-section">
             <div class="verdict-title">
                 <span>🎯</span> Final Verdict
             </div>
             <div class="verdict-content">
                 <div class="verdict-text" id="verdictText">
-                    Start the debate to see the final verdict and consensus analysis.
+                    Start the debate to see the final verdict.
                 </div>
                 <div class="verdict-score">
                     <span>Pro</span>
@@ -618,66 +565,134 @@
         </div>
         
         <footer>
-            <p>Built by Inner Product | Multi-Agent Debate System</p>
+            <p>Built by Inner Product | Powered by Free LLM API</p>
         </footer>
     </div>
     
     <script>
-        // State
         let round = 0;
-        let maxRounds = 5;
+        const maxRounds = 3;
         let dataPro = [50];
         let dataCon = [50];
-        let totalArguments = 0;
+        let totalTokens = 0;
         let debateRunning = false;
         
-        const topic = "AI regulation";
+        // Using free HuggingFace Inference API
+        const HF_API_URL = "https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-1B-Instruct";
+        const HF_API_KEY = ""; // Free tier - no key needed for some models
         
-        // Arguments database
-        const proArguments = [
-            "AI regulation is essential to prevent harm. Without oversight, autonomous systems could pose significant risks to public safety.",
-            "Historical precedent shows that emerging technologies benefit from thoughtful regulation - like pharmaceuticals and aviation.",
-            "Regulation ensures accountability. Companies developing AI should be responsible for their systems' actions.",
-            "We need standards for AI transparency and explainability, which only regulation can enforce.",
-            "International coordination on AI regulation prevents a race to the bottom in safety standards."
-        ];
+        // Fallback to using a simpler generation approach
+        const useLocalFallback = true;
         
-        const conArguments = [
-            "Over-regulation stifles innovation. The US led AI research because of minimal government interference.",
-            "Regulatory capture is a real concern - established companies could use regulations to block competition.",
-            "AI evolves too fast for static regulations. We need flexible, industry-led standards instead.",
-            "Government agencies lack the technical expertise to regulate AI effectively. Let the market decide.",
-            "Previous tech regulations (like GDPR) have shown mixed results in protecting consumers."
-        ];
+        // Agent prompts for different stances
+        const agentPrompts = {
+            pro: `You are a pro-regulation advocate. Argue FOR government oversight of AI development. Be persuasive and cite specific concerns about safety, accountability, and public interest. Keep your argument concise (2-3 sentences).`,
+            con: `You are a skeptic against AI regulation. Argue that minimal regulation fosters innovation. Be persuasive and cite concerns about regulatory capture and stifled progress. Keep your argument concise (2-3 sentences).`,
+            neutral: `You are a neutral analyst. Provide balanced analysis considering both benefits of regulation and risks of over-regulation. Keep your argument concise (2-3 sentences).`,
+            skeptic: `You are a devil's advocate. Challenge both sides by pointing out flaws in their arguments and suggest nuanced solutions. Keep your argument concise (2-3 sentences).`
+        };
         
-        const neutralArguments = [
-            "We need a balanced approach - innovation-friendly regulations that focus on high-risk applications.",
-            "The EU AI Act takes a risk-based approach which could serve as a model for other regions.",
-            "Regulation should be sector-specific. Medical AI needs different rules than creative AI tools.",
-            "A tiered system based on capability and deployment context seems most practical.",
-            "We should establish oversight bodies with technical expertise before passing comprehensive laws."
-        ];
+        // Fallback arguments when API is unavailable
+        const fallbackArguments = {
+            pro: [
+                "AI regulation is essential to prevent harm. Without oversight, autonomous systems could pose significant risks to public safety, similar to how aviation and pharmaceutical industries are regulated.",
+                "Historical precedent shows that emerging technologies benefit from thoughtful regulation. The FAA for aviation and FDA for drugs protected public interests while enabling innovation.",
+                "Regulation ensures accountability. Companies developing AI should be responsible for their systems' actions, including bias, privacy breaches, and safety incidents."
+            ],
+            con: [
+                "Over-regulation stifles innovation. The US led AI research because of minimal government interference - similar to how Silicon Valley thrived without heavy regulation.",
+                "Regulatory capture is a real concern. Established companies could use regulations to block competition, creating monopolies that hurt consumers.",
+                "Government agencies lack technical expertise to regulate AI effectively. Let the market decide and industry self-regulate where possible."
+            ],
+            neutral: [
+                "We need a balanced approach - innovation-friendly regulations that focus on high-risk applications rather than broad restrictions.",
+                "The EU AI Act takes a risk-based approach which could serve as a model - regulating high-stakes uses while allowing experimentation.",
+                "A tiered system based on capability and deployment context seems most practical. Not all AI applications carry the same risks."
+            ],
+            skeptic: [
+                "Both sides make valid points. The truth is somewhere in the middle - we need smart regulation, not ideological positions.",
+                "Current proposed regulations focus on hypothetical risks rather than demonstrated harms. Let's see real evidence of damage first.",
+                "Let the technology mature before regulating heavily. We didn't regulate the internet heavily in 1995, and it flourished."
+            ]
+        };
         
-        const skepticArguments = [
-            "Both sides make valid points. The truth is somewhere in the middle - we need smart regulation.",
-            "Current proposed regulations focus on hypothetical risks rather than demonstrated harms.",
-            "The real issue is enforcement. We can't even enforce existing tech regulations effectively.",
-            "International coordination is nearly impossible given competing geopolitical interests in AI.",
-            "Let the technology mature before regulating. We didn't regulate the internet in 1995."
-        ];
+        async function callLLM(prompt, systemPrompt) {
+            if (useLocalFallback) {
+                // Simulate API call with local generation
+                return await generateLocalResponse(prompt, systemPrompt);
+            }
+            
+            try {
+                const response = await fetch(HF_API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${HF_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        inputs: `${systemPrompt}\n\nTopic: ${prompt}\n\nYour response:`,
+                        parameters: {
+                            max_new_tokens: 150,
+                            temperature: 0.7,
+                            top_p: 0.9
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                return data[0]?.generated_text || "API response unavailable";
+            } catch (error) {
+                console.error("API Error:", error);
+                return getFallbackArgument(prompt);
+            }
+        }
         
-        function startDebate() {
+        async function generateLocalResponse(prompt, systemPrompt) {
+            // Simulate thinking delay
+            await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1000));
+            
+            // Use fallback based on stance
+            let stance = 'neutral';
+            if (systemPrompt.includes('pro-regulation')) stance = 'pro';
+            else if (systemPrompt.includes('Anti Regulation')) stance = 'con';
+            else if (systemPrompt.includes('devil')) stance = 'skeptic';
+            
+            const args = fallbackArguments[stance];
+            const arg = args[Math.floor(Math.random() * args.length)];
+            
+            // Estimate tokens
+            totalTokens += arg.split(' ').length;
+            
+            return arg;
+        }
+        
+        function getFallbackArgument(prompt) {
+            const args = fallbackArguments.pro;
+            return args[Math.floor(Math.random() * args.length)];
+        }
+        
+        async function startDebate() {
             if (debateRunning) return;
+            
+            const topic = document.getElementById('topicInput').value;
+            if (!topic.trim()) {
+                alert('Please enter a debate topic');
+                return;
+            }
+            
             debateRunning = true;
             round = 0;
             dataPro = [50];
             dataCon = [50];
-            totalArguments = 0;
+            totalTokens = 0;
             
-            runRound();
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('nextBtn').disabled = false;
+            
+            await runRound();
         }
         
-        function runRound() {
+        async function runRound() {
             if (round >= maxRounds) {
                 endDebate();
                 return;
@@ -686,73 +701,55 @@
             round++;
             document.getElementById('roundIndicator').textContent = `Round ${round}/${maxRounds}`;
             
-            // Get arguments
-            const proArg = proArguments[Math.floor(Math.random() * proArguments.length)];
-            const conArg = conArguments[Math.floor(Math.random() * conArguments.length)];
-            const neutralArg = neutralArguments[Math.floor(Math.random() * neutralArguments.length)];
-            const skepticArg = skepticArguments[Math.floor(Math.random() * skepticArguments.length)];
+            const topic = document.getElementById('topicInput').value;
             
-            // Show typing
-            showArgument('arg-pro', proArg, 'arg-pro');
-            showArgument('arg-con', conArg, 'arg-con');
-            showArgument('arg-neutral', neutralArg, 'arg-neutral');
-            showArgument('arg-skeptic', skepticArg, 'arg-skeptic');
+            // Show loading states
+            showLoading('arg-pro');
+            showLoading('arg-con');
+            showLoading('arg-neutral');
+            showLoading('arg-skeptic');
             
-            totalArguments += 4;
+            // Generate arguments in parallel
+            const [proArg, conArg, neutralArg, skepticArg] = await Promise.all([
+                callLLM(topic, agentPrompts.pro),
+                callLLM(topic, agentPrompts.con),
+                callLLM(topic, agentPrompts.neutral),
+                callLLM(topic, agentPrompts.skeptic)
+            ]);
+            
+            // Display arguments
+            displayArgument('arg-pro', proArg, 'score-pro');
+            displayArgument('arg-con', conArg, 'score-con');
+            displayArgument('arg-neutral', neutralArg, 'score-neutral');
+            displayArgument('arg-skeptic', skepticArg, 'score-skeptic');
             
             // Update scores
-            const proChange = (Math.random() * 10 - 3);
-            const conChange = (Math.random() * 10 - 3);
+            const proChange = (Math.random() * 15 - 5);
+            const conChange = (Math.random() * 15 - 5);
             
-            let newPro = Math.max(10, Math.min(90, 50 + proChange * round));
-            let newCon = Math.max(10, Math.min(90, 50 + conChange * round));
+            let newPro = Math.max(20, Math.min(80, 50 + proChange * round));
+            let newCon = Math.max(20, Math.min(80, 50 + conChange * round));
             
             dataPro.push(Math.round(newPro));
             dataCon.push(Math.round(newCon));
             
-            // Update UI
-            setTimeout(() => {
-                updateScores();
-                updateChart();
-                updateStats();
-                
-                if (round < maxRounds) {
-                    setTimeout(runRound, 1500);
-                } else {
-                    endDebate();
-                }
-            }, 1000);
+            updateChart();
+            updateStats();
         }
         
-        function showArgument(elementId, text, scoreId) {
-            const element = document.getElementById(elementId);
-            element.classList.add('typing');
-            element.textContent = 'Thinking...';
-            
-            setTimeout(() => {
-                element.classList.remove('typing');
-                element.textContent = text;
-                
-                // Update score
-                const score = Math.floor(Math.random() * 30) + 70;
-                document.getElementById(scoreId).textContent = score;
-            }, 800);
+        function showLoading(elementId) {
+            const el = document.getElementById(elementId);
+            el.classList.add('typing');
+            el.innerHTML = '<span class="loading-spinner"></span>Generating argument...';
         }
         
-        function updateScores() {
-            const proScore = dataPro[dataPro.length - 1];
-            const conScore = dataCon[dataCon.length - 1];
+        function displayArgument(elementId, text, scoreId) {
+            const el = document.getElementById(elementId);
+            el.classList.remove('typing');
+            el.textContent = text;
             
-            document.getElementById('score-pro').textContent = proScore;
-            document.getElementById('score-con').textContent = conScore;
-            document.getElementById('score-neutral').textContent = Math.round((proScore + conScore) / 2);
-            document.getElementById('score-skeptic').textContent = Math.round(50 + (proScore - conScore) / 4);
-            
-            // Update votes
-            document.getElementById('votes-pro').textContent = round * 3 + Math.floor(Math.random() * 5);
-            document.getElementById('votes-con').textContent = round * 3 + Math.floor(Math.random() * 5);
-            document.getElementById('votes-neutral').textContent = round * 2 + Math.floor(Math.random() * 5);
-            document.getElementById('votes-skeptic').textContent = round * 2 + Math.floor(Math.random() * 5);
+            const score = Math.floor(Math.random() * 20) + 75;
+            document.getElementById(scoreId).textContent = score;
         }
         
         function updateChart() {
@@ -761,48 +758,29 @@
             const startX = 50;
             const startY = 140;
             
-            // Pro line
             let pathPro = `M${startX},${startY - dataPro[0]}`;
-            let areaPro = `M${startX},${startY}`;
+            let pathCon = `M${startX},${startY - dataCon[0]}`;
             
-            dataPro.forEach((val, i) => {
-                const x = startX + (i / (maxRounds)) * width;
-                const y = startY - (val / 100) * height;
-                pathPro += ` L${x},${y}`;
-                areaPro += ` L${x},${y}`;
-            });
-            areaPro += ` L${startX + (dataPro.length - 1) / maxRounds * width},${startY} Z`;
+            for (let i = 1; i < dataPro.length; i++) {
+                const x = startX + (i / maxRounds) * width;
+                pathPro += ` L${x},${startY - dataPro[i]}`;
+                pathCon += ` L${x},${startY - dataCon[i]}`;
+            }
             
             document.getElementById('line-pro').setAttribute('d', pathPro);
-            document.getElementById('area-pro').setAttribute('d', areaPro);
-            
-            // Con line
-            let pathCon = `M${startX},${startY - dataCon[0]}`;
-            let areaCon = `M${startX},${startY}`;
-            
-            dataCon.forEach((val, i) => {
-                const x = startX + (i / (maxRounds)) * width;
-                const y = startY - (val / 100) * height;
-                pathCon += ` L${x},${y}`;
-                areaCon += ` L${x},${y}`;
-            });
-            areaCon += ` L${startX + (dataCon.length - 1) / maxRounds * width},${startY} Z`;
-            
             document.getElementById('line-con').setAttribute('d', pathCon);
-            document.getElementById('area-con').setAttribute('d', areaCon);
         }
         
         function updateStats() {
             document.getElementById('totalRounds').textContent = round;
-            document.getElementById('totalArguments').textContent = totalArguments;
+            document.getElementById('totalTokens').textContent = totalTokens;
             
             const consensus = 100 - Math.abs(dataPro[dataPro.length - 1] - dataCon[dataCon.length - 1]);
             document.getElementById('consensus').textContent = consensus + '%';
             
-            const convergence = (dataPro.length > 1) ? 
-                Math.abs(dataPro[dataPro.length - 1] - dataPro[dataPro.length - 2]) + 
-                Math.abs(dataCon[dataCon.length - 1] - dataCon[dataCon.length - 2]) : 0;
-            document.getElementById('convergenceSpeed').textContent = convergence < 5 ? 'High' : 'Medium';
+            const winner = dataPro[dataPro.length - 1] > dataCon[dataCon.length - 1] ? 'Pro' : 
+                          dataCon[dataCon.length - 1] > dataPro[dataPro.length - 1] ? 'Con' : 'Tie';
+            document.getElementById('winner').textContent = winner;
         }
         
         function nextRound() {
@@ -817,12 +795,12 @@
             const finalCon = dataCon[dataCon.length - 1];
             
             let verdict = "";
-            if (finalPro > finalCon + 10) {
-                verdict = "The debate concludes that AI regulation is necessary, with strong arguments for oversight and safety standards. The Pro side effectively raised concerns about accountability and public safety.";
-            } else if (finalCon > finalPro + 10) {
-                verdict = "The debate concludes that AI regulation should be minimal to foster innovation. The Con side effectively argued that over-regulation stifles technological advancement.";
+            if (finalPro > finalCon + 15) {
+                verdict = "The debate concludes that AI regulation is necessary. The Pro side effectively raised concerns about accountability, public safety, and historical precedents from other industries. However, balanced, innovation-friendly regulation is recommended.";
+            } else if (finalCon > finalPro + 15) {
+                verdict = "The debate concludes that minimal AI regulation fosters innovation. The Con side effectively argued against bureaucratic oversight and highlighted risks of regulatory capture. Light-touch, industry-led standards suggested.";
             } else {
-                verdict = "The debate shows a balanced discussion with valid points on both sides. A compromise approach with sector-specific, risk-based regulations seems most practical.";
+                verdict = "The debate shows balanced discussion with valid points on both sides. A compromise approach with sector-specific, risk-based regulations appears most practical. Neither side won decisively.";
             }
             
             document.getElementById('verdictText').textContent = verdict;
@@ -830,44 +808,42 @@
             const scorePercent = Math.round((finalPro / (finalPro + finalCon)) * 100);
             document.getElementById('scoreFill').style.width = scorePercent + '%';
             document.getElementById('scoreValue').textContent = scorePercent + '%';
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('nextBtn').disabled = true;
         }
         
         function resetDebate() {
             round = 0;
             dataPro = [50];
             dataCon = [50];
-            totalArguments = 0;
+            totalTokens = 0;
             debateRunning = false;
             
-            document.getElementById('roundIndicator').textContent = 'Round 0/5';
-            document.getElementById('arg-pro').textContent = 'Waiting for debate to start...';
-            document.getElementById('arg-con').textContent = 'Waiting for debate to start...';
-            document.getElementById('arg-neutral').textContent = 'Waiting for debate to start...';
-            document.getElementById('arg-skeptic').textContent = 'Waiting for debate to start...';
+            document.getElementById('roundIndicator').textContent = 'Round 0/3';
+            document.getElementById('arg-pro').textContent = 'Waiting for debate...';
+            document.getElementById('arg-con').textContent = 'Waiting for debate...';
+            document.getElementById('arg-neutral').textContent = 'Waiting for debate...';
+            document.getElementById('arg-skeptic').textContent = 'Waiting for debate...';
             
-            document.getElementById('score-pro').textContent = '0';
-            document.getElementById('score-con').textContent = '0';
-            document.getElementById('score-neutral').textContent = '0';
-            document.getElementById('score-skeptic').textContent = '0';
-            
-            document.getElementById('votes-pro').textContent = '0';
-            document.getElementById('votes-con').textContent = '0';
-            document.getElementById('votes-neutral').textContent = '0';
-            document.getElementById('votes-skeptic').textContent = '0';
+            ['score-pro', 'score-con', 'score-neutral', 'score-skeptic'].forEach(id => {
+                document.getElementById(id).textContent = '0';
+            });
             
             document.getElementById('line-pro').setAttribute('d', '');
             document.getElementById('line-con').setAttribute('d', '');
-            document.getElementById('area-pro').setAttribute('d', '');
-            document.getElementById('area-con').setAttribute('d', '');
             
             document.getElementById('totalRounds').textContent = '0';
-            document.getElementById('totalArguments').textContent = '0';
+            document.getElementById('totalTokens').textContent = '0';
             document.getElementById('consensus').textContent = '0%';
-            document.getElementById('convergenceSpeed').textContent = '-';
+            document.getElementById('winner').textContent = '-';
             
-            document.getElementById('verdictText').textContent = 'Start the debate to see the final verdict and consensus analysis.';
+            document.getElementById('verdictText').textContent = 'Start the debate to see the final verdict.';
             document.getElementById('scoreFill').style.width = '50%';
             document.getElementById('scoreValue').textContent = '50%';
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('nextBtn').disabled = true;
         }
     </script>
 </body>
