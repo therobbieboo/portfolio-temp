@@ -10,7 +10,7 @@
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 40px 24px; }
         h1 { font-size: 2.5rem; margin-bottom: 8px; text-align: center; }
         .subtitle { color: var(--text-dim); margin-bottom: 40px; text-align: center; max-width: 500px; margin-left: auto; margin-right: auto; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto; }
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; transition: all 0.3s; }
         .card:hover { border-color: var(--accent); transform: translateY(-4px); }
         .card-icon { font-size: 2.5rem; margin-bottom: 12px; }
@@ -18,69 +18,19 @@
         .card p { font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 16px; }
         .card a { display: inline-block; background: var(--accent); color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; }
         .card a:hover { background: #8b5cf6; }
-        .badge { display: inline-block; background: var(--accent); color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; margin-left: 8px; }
         footer { text-align: center; padding: 40px; color: var(--text-dim); font-size: 0.8rem; }
     </style>
 </head>
 <body>
     <h1>🤖 AI Demos</h1>
-    <p class="subtitle">Interactive demonstrations featuring cutting-edge AI research with Three.js visualizations</p>
+    <p class="subtitle">Interactive demonstrations featuring cutting-edge AI research</p>
     
     <div class="grid">
-        <div class="card">
-            <div class="card-icon">⚔️</div>
-            <h3>Agent Training Arena <span class="badge">3D</span></h3>
-            <p>Train and evolve AI agents in an interactive battle arena. Visualize learning progress in real-time.</p>
-            <a href="demo-1-agent-training-arena.html">Try Demo →</a>
-        </div>
-        
-        <div class="card">
-            <div class="card-icon">🎻</div>
-            <h3>Swarm Mind Orchestra <span class="badge">3D</span></h3>
-            <p>Watch AI agents collaborate as a digital symphony. Three.js particle system showing emergent collective intelligence.</p>
-            <a href="demo-2-swarm-orchestra.html">Try Demo →</a>
-        </div>
-        
-        <div class="card">
-            <div class="card-icon">🌳</div>
-            <h3>Digital Bonsai Garden <span class="badge">3D</span></h3>
-            <p>Cultivate your AI decision trees like bonsai. Prune, shape, and nurture neural networks into elegant solutions.</p>
-            <a href="demo-3-bonsai-garden.html">Try Demo →</a>
-        </div>
-        
         <div class="card">
             <div class="card-icon">🧬</div>
             <h3>Agent Evolution Lab</h3>
             <p>Watch AI agents evolve through natural selection. Real-time mutation, adaptation, and survival simulation.</p>
             <a href="demo-evolution-lab.html">Try Demo →</a>
-        </div>
-        
-        <div class="card">
-            <div class="card-icon">🔮</div>
-            <h3>Sci-Fi Prototyper</h3>
-            <p>Transform research papers into working prototypes instantly. From theory to code in seconds.</p>
-            <a href="demo-4-prototyper.html">Try Demo →</a>
-        </div>
-        
-        <div class="card">
-            <div class="card-icon">🎓</div>
-            <h3>Code Whisperer</h3>
-            <p>Learn from AI masters like a seasoned developer. Interactive coding mentor with personalized guidance.</p>
-            <a href="demo-5-code-whisperer.html">Try Demo →</a>
-        </div>
-        
-        <div class="card">
-            <div class="card-icon">☕</div>
-            <h3>Philosopher's Café</h3>
-            <p>Enter the virtual café where AI philosopher agents debate life's deepest questions.</p>
-            <a href="demo-6-philosophers-cafe.html">Try Demo →</a>
-        </div>
-        
-        <div class="card">
-            <div class="card-icon">🔧</div>
-            <h3>Pipeline Builder</h3>
-            <p>Design and visualize AI agent pipelines. Connect nodes, configure workflows, and execute complex tasks.</p>
-            <a href="demo-7-pipeline-builder.html">Try Demo →</a>
         </div>
         
         <div class="card">
