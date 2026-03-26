@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Evolution Lab - AI Self-Learning Experiment</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --accent-cyan: #00f5ff;
+            --accent-purple: #a855f7;
+            --accent-green: #10b981;
+            --accent-orange: #f97316;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 245, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.2), rgba(168, 85, 247, 0.2));
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            margin-top: 1rem;
+        }
+        
+        /* Hypothesis Section */
+        .hypothesis-box {
+            background: var(--bg-card);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hypothesis-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent-cyan), var(--accent-purple));
+        }
+        
+        .hypothesis-box h3 {
+            color: var(--accent-cyan);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+        }
+        
+        .hypothesis-box p {
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        /* Control Panel */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 245, 255, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--accent-cyan);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            border-color: rgba(0, 245, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+        }
+        
+        /* Agent Cards */
+        .agents-section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        
+        .agent-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .agent-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+        }
+        
+        .agent-card.agent-1::before { background: var(--accent-cyan); }
+        .agent-card.agent-2::before { background: var(--accent-purple); }
+        .agent-card.agent-3::before { background: var(--accent-green); }
+        
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .agent-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .agent-1 .agent-avatar { background: rgba(0, 245, 255, 0.2); }
+        .agent-2 .agent-avatar { background: rgba(168, 85, 247, 0.2); }
+        .agent-3 .agent-avatar { background: rgba(16, 185, 129, 0.2); }
+        
+        .agent-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .agent-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .agent-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .agent-stat {
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 0.5rem;
+        }
+        
+        .agent-stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .agent-1 .agent-stat-value { color: var(--accent-cyan); }
+        .agent-2 .agent-stat-value { color: var(--accent-purple); }
+        .agent-3 .agent-stat-value { color: var(--accent-green); }
+        
+        .agent-stat-label {
+            font-size: 0.625rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        
+        /* Strategy Evolution */
+        .strategy-list {
+            list-style: none;
+        }
+        
+        .strategy-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .strategy-icon {
+            font-size: 0.875rem;
+        }
+        
+        .strategy-icon.success { color: var(--accent-green); }
+        .strategy-icon.failed { color: var(--accent-orange); }
+        .strategy-icon.learning { color: var(--accent-cyan); }
+        
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-container {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .chart-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Task Display */
+        .task-display {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .task-label {
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+        
+        .task-text {
+            font-size: 1rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .task-difficulty {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: rgba(249, 115, 22, 0.2);
+            color: var(--accent-orange);
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        
+        /* Log */
+        .log-container {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .log-entry {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 0.875rem;
+        }
+        
+        .log-time {
+            color: var(--text-secondary);
+            font-family: monospace;
+            font-size: 0.75rem;
+        }
+        
+        .log-message {
+            color: var(--text-primary);
+        }
+        
+        .log-message.success { color: var(--accent-green); }
+        .log-message.error { color: var(--accent-orange); }
+        .log-message.info { color: var(--accent-cyan); }
+        .log-message.evolution { color: var(--accent-purple); }
+        
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(0, 245, 255, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 245, 255, 0.6); }
+        }
+        
+        .running .stat-value {
+            animation: glow 1s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧬 Agent Evolution Lab</h1>
+            <p>觀察 AI Agent 如何在協作中自我學習與進化</p>
+            <span class="badge">Live Experiment</span>
+        </header>
+        
+        <!-- Hypothesis -->
+        <div class="hypothesis-box">
+            <h3>💡 Hypothesis 假設</h3>
+            <p><strong>問題：</strong>現有 AI Agent 每次任務都是靜態執行，無法從過往互動中學習。<br>
+            <strong>假設：</strong>如果 Agent 能在協作解決任務時觀察彼此的成功/失敗，自主調整策略，那麼整體問題解決能力會隨時間提升。</p>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn-primary" onclick="startExperiment()">🚀 開始實驗</button>
+            <button class="btn-secondary" onclick="pauseExperiment()">⏸ 暫停</button>
+            <button class="btn-secondary" onclick="resetExperiment()">🔄 重置</button>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="round">0</div>
+                <div class="stat-label">當前回合</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="successRate">0%</div>
+                <div class="stat-label">成功率</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="evolution">0</div>
+                <div class="stat-label">進化次數</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgTime">0s</div>
+                <div class="stat-label">平均解題時間</div>
+            </div>
+        </div>
+        
+        <!-- Task Display -->
+        <div class="task-display">
+            <div class="task-label">Current Task 當前任務</div>
+            <div class="task-text" id="currentTask">等待開始實驗...</div>
+            <div class="task-difficulty" id="taskDifficulty">難度: -</div>
+        </div>
+        
+        <!-- Agents -->
+        <div class="agents-section">
+            <div class="section-title">🤖 AI Agents 智能代理</div>
+            <div class="agents-grid">
+                <div class="agent-card agent-1" id="agent1">
+                    <div class="agent-header">
+                        <div class="agent-avatar">🔵</div>
+                        <div>
+                            <div class="agent-name">Nova</div>
+                            <div class="agent-role">策略分析師</div>
+                        </div>
+                    </div>
+                    <div class="agent-stats">
+                        <div class="agent-stat">
+                            <div class="agent-stat-value" id="agent1-score">0</div>
+                            <div class="agent-stat-label">得分</div>
+                        </div>
+                        <div class="agent-stat">
+                            <div class="agent-stat-value" id="agent1-wins">0</div>
+                            <div class="agent-stat-label">獲勝次數</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="agent1-progress" style="width: 10%"></div>
+                    </div>
+                    <ul class="strategy-list" id="agent1-strategies">
+                        <li class="strategy-item"><span class="strategy-icon learning">⏳</span> 初始化中...</li>
+                    </ul>
+                </div>
+                
+                <div class="agent-card agent-2" id="agent2">
+                    <div class="agent-header">
+                        <div class="agent-avatar">🟣</div>
+                        <div>
+                            <div class="agent-name">Atlas</div>
+                            <div class="agent-role">執行者</div>
+                        </div>
+                    </div>
+                    <div class="agent-stats">
+                        <div class="agent-stat">
+                            <div class="agent-stat-value" id="agent2-score">0</div>
+                            <div class="agent-stat-label">得分</div>
+                        </div>
+                        <div class="agent-stat">
+                            <div class="agent-stat-value" id="agent2-wins">0</div>
+                            <div class="agent-stat-label">獲勝次數</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="agent2-progress" style="width: 10%"></div>
+                    </div>
+                    <ul class="strategy-list" id="agent2-strategies">
+                        <li class="strategy-item"><span class="strategy-icon learning">⏳</span> 初始化中...</li>
+                    </ul>
+                </div>
+                
+                <div class="agent-card agent-3" id="agent3">
+                    <div class="agent-header">
+                        <div class="agent-avatar">🟢</div>
+                        <div>
+                            <div class="agent-name">Phoenix</div>
+                            <div class="agent-role">學習者</div>
+                        </div>
+                    </div>
+                    <div class="agent-stats">
+                        <div class="agent-stat">
+                            <div class="agent-stat-value" id="agent3-score">0</div>
+                            <div class="agent-stat-label">得分</div>
+                        </div>
+                        <div class="agent-stat">
+                            <div class="agent-stat-value" id="agent3-wins">0</div>
+                            <div class="agent-stat-label">獲勝次數</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="agent3-progress" style="width: 10%"></div>
+                    </div>
+                    <ul class="strategy-list" id="agent3-strategies">
+                        <li class="strategy-item"><span class="strategy-icon learning">⏳</span> 初始化中...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">📈 成功率演變 Success Rate Evolution</div>
+                <canvas id="successChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">🏆 Agent 得分對比 Score Comparison</div>
+                <canvas id="scoreChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Log -->
+        <div class="section-title">📋 實驗日誌 Experiment Log</div>
+        <div class="log-container" id="log">
+            <div class="log-entry">
+                <span class="log-time">--:--:--</span>
+                <span class="log-message">等待實驗開始...</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Experiment State
+        let experimentState = {
+            running: false,
+            paused: false,
+            round: 0,
+            totalRounds: 20,
+            evolutionCount: 0,
+            successCount: 0,
+            totalTime: 0,
+            startTime: null,
+            history: {
+                rounds: [],
+                successRates: [],
+                agent1: { scores: [], wins: 0 },
+                agent2: { scores: [], wins: 0 },
+                agent3: { scores: [], wins: 0 }
+            }
+        };
+        
+        // Agents
+        const agents = {
+            1: { name: 'Nova', role: '策略分析師', score: 0, wins: 0, strategies: [], learningRate: 0.1, baseSuccess: 0.3 },
+            2: { name: 'Atlas', role: '執行者', score: 0, wins: 0, strategies: [], learningRate: 0.15, baseSuccess: 0.35 },
+            3: { name: 'Phoenix', role: '學習者', score: 0, wins: 0, strategies: [], learningRate: 0.2, baseSuccess: 0.25 }
+        };
+        
+        // Tasks database
+        const tasks = [
+            { text: "分析用戶行為數據，找出流失原因", difficulty: 1 },
+            { text: "優化資料庫查詢效能，提升響應速度", difficulty: 2 },
+            { text: "設計推薦系統算法，提高轉化率", difficulty: 3 },
+            { text: "實作即時聊天機器人，處理複雜對話", difficulty: 3 },
+            { text: "開發異常偵測系統，即時發現問題", difficulty: 4 },
+            { text: "建立自動化測試框架，覆蓋率達90%", difficulty: 4 },
+            { text: "優化雲端資源配置，降低30%成本", difficulty: 5 }
+        ];
+        
+        // Strategy templates
+        const strategyTemplates = {
+            success: [
+                "採用 {agent} 的方法，成功！",
+                "優化策略：增加驗證步驟",
+                "協作成功：結合 {agent1} 和 {agent2} 的優勢",
+                "發現新模式：分階段處理",
+                "成功：使用了更具體的關鍵詞"
+            ],
+            failed: [
+                "策略失敗：嘗試其他方法",
+                "超時：需要更高效的方法",
+                "協作不順暢：重新分工",
+                "方法不適用：切換思路",
+                "資源不足：簡化問題"
+            ]
+        };
+        
+        // Charts
+        let successChart, scoreChart;
+        
+        function initCharts() {
+            const successCtx = document.getElementById('successChart').getContext('2d');
+            successChart = new Chart(successCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '成功率',
+                        data: [],
+                        borderColor: '#00f5ff',
+                        backgroundColor: 'rgba(0, 245, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        }
+                    }
+                }
+            });
+            
+            const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+            scoreChart = new Chart(scoreCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Nova', data: [], borderColor: '#00f5ff', tension: 0.4 },
+                        { label: 'Atlas', data: [], borderColor: '#a855f7', tension: 0.4 },
+                        { label: 'Phoenix', data: [], borderColor: '#10b981', tension: 0.4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: '#9ca3af' } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="log-time">${time}</span>
+                <span class="log-message ${type}">${message}</span>
+            `;
+            logContainer.insertBefore(entry, logContainer.firstChild);
+        }
+        
+        function updateStats() {
+            document.getElementById('round').textContent = experimentState.round;
+            const successRate = experimentState.round > 0 
+                ? Math.round((experimentState.successCount / experimentState.round) * 100) 
+                : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+            document.getElementById('evolution').textContent = experimentState.evolutionCount;
+            const avgTime = experimentState.round > 0 
+                ? (experimentState.totalTime / experimentState.round).toFixed(1) 
+                : 0;
+            document.getElementById('avgTime').textContent = avgTime + 's';
+        }
+        
+        function updateAgentCard(agentId) {
+            const agent = agents[agentId];
+            document.getElementById(`agent${agentId}-score`).textContent = agent.score;
+            document.getElementById(`agent${agentId}-wins`).textContent = agent.wins;
+            
+            const progress = Math.min(100, (agent.score / 100) * 100);
+            document.getElementById(`agent${agentId}-progress`).style.width = progress + '%';
+            
+            const strategyList = document.getElementById(`agent${agentId}-strategies`);
+            strategyList.innerHTML = agent.strategies.slice(0, 5).map(s => `
+                <li class="strategy-item">
+                    <span class="strategy-icon ${s.type}">${s.type === 'success' ? '✓' : s.type === 'failed' ? '✗' : '→'}</span>
+                    ${s.text}
+                </li>
+            `).join('');
+        }
+        
+        function runRound() {
+            if (experimentState.paused) return;
+            
+            experimentState.round++;
+            const task = tasks[Math.floor(Math.random() * tasks.length)];
+            const difficulty = task.difficulty;
+            
+            document.getElementById('currentTask').textContent = task.text;
+            document.getElementById('taskDifficulty').textContent = `難度: ${difficulty}/5`;
+            
+            log(`回合 ${experimentState.round} 開始: ${task.text}`, 'info');
+            
+            // Each agent attempts the task
+            const results = [];
+            let roundSuccess = false;
+            
+            Object.keys(agents).forEach(agentId => {
+                const agent = agents[agentId];
+                
+                // Calculate success probability based on learning
+                const baseProb = agent.baseSuccess;
+                const learningBonus = (agent.score / 100) * 0.3;
+                const difficultyPenalty = (difficulty - 1) * 0.1;
+                const successProb = Math.min(0.95, Math.max(0.1, baseProb + learningBonus - difficultyPenalty));
+                
+                const success = Math.random() < successProb;
+                
+                if (success) {
+                    agent.score += Math.round((6 - difficulty) * 10 * (1 + agent.learningRate));
+                    agent.wins++;
+                    roundSuccess = true;
+                    
+                    const strategy = strategyTemplates.success[Math.floor(Math.random() * strategyTemplates.success.length)]
+                        .replace('{agent}', Object.values(agents).find(a => a !== agent)?.name || '團隊');
+                    agent.strategies.unshift({ type: 'success', text: strategy, time: Date.now() });
+                    
+                    log(`${agent.name} 成功解決任務！+${Math.round((6 - difficulty) * 10 * (1 + agent.learningRate))}分`, 'success');
+                } else {
+                    agent.score = Math.max(0, agent.score - 5);
+                    
+                    const strategy = strategyTemplates.failed[Math.floor(Math.random() * strategyTemplates.failed.length)];
+                    agent.strategies.unshift({ type: 'failed', text: strategy, time: Date.now() });
+                    
+                    log(`${agent.name} 失敗，正在學習新策略...`, 'error');
+                }
+                
+                updateAgentCard(agentId);
+            });
+            
+            if (roundSuccess) {
+                experimentState.successCount++;
+                
+                // Check for evolution
+                const avgScore = Object.values(agents).reduce((sum, a) => sum + a.score, 0) / 3;
+                if (avgScore > 30 && experimentState.round % 3 === 0) {
+                    experimentState.evolutionCount++;
+                    log(`🧬 團隊進化！Agent 學會了新策略，解決問題能力提升`, 'evolution');
+                }
+            }
+            
+            // Update charts
+            const successRate = Math.round((experimentState.successCount / experimentState.round) * 100);
+            successChart.data.labels.push(`R${experimentState.round}`);
+            successChart.data.datasets[0].data.push(successRate);
+            successChart.update();
+            
+            scoreChart.data.labels.push(`R${experimentState.round}`);
+            scoreChart.data.datasets[0].data.push(agents[1].score);
+            scoreChart.data.datasets[1].data.push(agents[2].score);
+            scoreChart.data.datasets[2].data.push(agents[3].score);
+            scoreChart.update();
+            
+            // Update stats
+            experimentState.totalTime += Math.random() * 2 + 1;
+            updateStats();
+            
+            // Check if experiment is complete
+            if (experimentState.round >= experimentState.totalRounds) {
+                experimentState.running = false;
+                log(`實驗完成！最終成功率: ${successRate}%`, 'success');
+                document.querySelector('.container').classList.remove('running');
+            }
+        }
+        
+        function startExperiment() {
+            if (experimentState.running) return;
+            
+            experimentState.running = true;
+            experimentState.paused = false;
+            document.querySelector('.container').classList.add('running');
+            
+            log('實驗開始！3個 AI Agent 將協作解決任務並學習進化', 'info');
+            
+            // Initialize strategies
+            agents[1].strategies = [{ type: 'learning', text: '初始策略：嘗試基礎分析方法' }];
+            agents[2].strategies = [{ type: 'learning', text: '初始策略：快速迭代嘗試' }];
+            agents[3].strategies = [{ type: 'learning', text: '初始策略：從錯誤中學習' }];
+            
+            Object.keys(agents).forEach(updateAgentCard);
+            
+            // Run rounds
+            const runInterval = setInterval(() => {
+                if (!experimentState.running) {
+                    clearInterval(runInterval);
+                    return;
+                }
+                runRound();
+            }, 2000);
+        }
+        
+        function pauseExperiment() {
+            experimentState.paused = !experimentState.paused;
+            log(experimentState.paused ? '實驗暫停' : '實驗繼續', 'info');
+            document.querySelector('.container').classList.toggle('running', !experimentState.paused);
+        }
+        
+        function resetExperiment() {
+            experimentState = {
+                running: false,
+                paused: false,
+                round: 0,
+                totalRounds: 20,
+                evolutionCount: 0,
+                successCount: 0,
+                totalTime: 0,
+                startTime: null,
+                history: { rounds: [], successRates: [], agent1: { scores: [], wins: 0 }, agent2: { scores: [], wins: 0 }, agent3: { scores: [], wins: 0 } }
+            };
+            
+            Object.keys(agents).forEach(id => {
+                agents[id].score = 0;
+                agents[id].wins = 0;
+                agents[id].strategies = [];
+            });
+            
+            // Reset charts
+            successChart.data.labels = [];
+            successChart.data.datasets[0].data = [];
+            successChart.update();
+            
+            scoreChart.data.labels = [];
+            scoreChart.data.datasets.forEach(ds => { ds.data = []; });
+            scoreChart.update();
+            
+            updateStats();
+            
+            document.getElementById('currentTask').textContent = '等待開始實驗...';
+            document.getElementById('taskDifficulty').textContent = '難度: -';
+            document.getElementById('log').innerHTML = '<div class="log-entry"><span class="log-time">--:--:--</span><span class="log-message">實驗已重置，等待開始...</span></div>';
+            
+            Object.keys(agents).forEach(updateAgentCard);
+            
+            log('實驗已重置', 'info');
+        }
+        
+        // Initialize
+        initCharts();
+        log('系統就緒，點擊「開始實驗」啟動', 'info');
+    </script>
+</body>
+</html>
