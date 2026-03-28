@@ -704,19 +704,19 @@ let MINIMAX_GROUP_ID = '2015394789192643334';
                 const status = document.getElementById('voiceStatus');
                 status.textContent = "🔊 MiniMax 生成語音中...";
                 
-                // Use HTTP API with Bearer token
-                fetch(`https://api.minimax.io/v1/t2a_v2?GroupId=${MINIMAX_GROUP_ID}`, {
+                // Use alternative endpoint with better reliability
+                fetch(`https://api-uw.minimax.io/v1/t2a_v2?GroupId=${MINIMAX_GROUP_ID}`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${MINIMAX_API_KEY}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: "speech-02-hd",
+                        model: "speech-2.8-hd",  // Better quality model
                         text: text,
                         stream: false,
                         voice_setting: {
-                            voice_id: "Chinese (Mandarin)_Radio_Host",
+                            voice_id: "moss_audio_ce44fc67-7ce3-11f0-8de5-96e35d26fb85", // More natural Chinese voice
                             speed: 1,
                             vol: 1,
                             pitch: 0,
