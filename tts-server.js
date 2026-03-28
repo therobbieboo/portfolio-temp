@@ -118,7 +118,7 @@ const server = http.createServer(async (req, res) => {
     res.end('Not found');
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 TTS Server running on http://localhost:${PORT}`);
     console.log(`   Endpoint: POST /tts with { "text": "你好" }`);
     console.log(`   Returns: audio/mp3`);
