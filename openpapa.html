@@ -341,34 +341,19 @@
                 const aiResponse = data.choices[0].message.content;
                 
                 removeTyping();
+                
+                // Immediately start TTS generation while showing text
                 addMessage(aiResponse, 'ai');
                 
                 conversationHistory.push({ role: 'user', content: text });
                 conversationHistory.push({ role: 'assistant', content: aiResponse });
                 if (conversationHistory.length > 8) conversationHistory = conversationHistory.slice(-8);
                 
-                // Generate TTS
+                // Generate TTS IMMEDIATELY - parallel with showing text
                 status.textContent = '🔊 生成语音...';
                 
-                const ttsResponse = await fetch(TTS_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        text: aiResponse, 
-                        model: 'speech-2.8-hd', 
-                        voice: 'Chinese (Mandarin)_Cute_Spirit', 
-                        speed: 1.1, 
-                        emotion: 'happy' 
-                    })
-                });
-                
-                if (!ttsResponse.ok) throw new Error('TTS failed');
-                
-                const audioBlob = await ttsResponse.blob();
-                const url = URL.createObjectURL(audioBlob);
-                
-                // Play audio
-                playAudio(url);
+                // Fire and forget TTS - don't await, start playing when ready
+                generateAndPlayTTS(aiResponse);
                 
             } catch (err) {
                 removeTyping();
@@ -408,6 +393,34 @@
             document.getElementById('avatar').className = 'avatar';
             document.getElementById('status').textContent = '点击说话';
             document.getElementById('status').className = 'status';
+        }
+        
+        // Generate and play TTS in parallel - no await
+        async function generateAndPlayTTS(text) {
+            try {
+                const ttsResponse = await fetch(TTS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        text: text, 
+                        model: 'speech-2.8-hd', 
+                        voice: 'Chinese (Mandarin)_Cute_Spirit', 
+                        speed: 1.1, 
+                        emotion: 'happy' 
+                    })
+                });
+                
+                if (!ttsResponse.ok) throw new Error('TTS failed');
+                
+                const audioBlob = await ttsResponse.blob();
+                const url = URL.createObjectURL(audioBlob);
+                
+                // Play immediately when ready
+                playAudio(url);
+            } catch (err) {
+                console.log('TTS error:', err);
+                resetState();
+            }
         }
         
         // Welcome message
