@@ -1,0 +1,12 @@
+{
+  "name": "openpapa-tts",
+  "version": "1.0.0",
+  "description": "MiniMax TTS Server for OpenPapa",
+  "main": "tts-server.js",
+  "scripts": {
+    "start": "node tts-server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
