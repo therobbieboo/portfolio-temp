@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = process.env.PORT || 3456;
+const PORT = process.env.PORT || process.env.RAILWAY_PORT || 3456;
 
 // MiniMax config from environment or file
 const API_KEY = process.env.MINIMAX_API_KEY || "sk-api-UDQ_gH2CVSsDk0RDT9GSmprIGzlzHzn-hVzyqmc5Zo_AAqbHxurA5yY2oTW5zTWb87-rcH9mrGvO3LPcDRglXCir9g96CISJLr1lPFTq1QC4JmBTxeUPxnE";
