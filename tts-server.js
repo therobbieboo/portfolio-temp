@@ -20,7 +20,7 @@ function hexToBytes(hex) {
 // Generate TTS
 async function generateTTS(text, options = {}) {
     const model = options.model || "speech-2.8-hd";
-    const voice = options.voice || "moss_audio_ce44fc67-7ce3-11f0-8de5-96e35d26fb85";
+    const voice = options.voice || "Chinese (Mandarin)_Cute_Spirit";
     const speed = options.speed || 1;
     const emotion = options.emotion || "calm";
     
