@@ -75,6 +75,13 @@ const server = http.createServer(async (req, res) => {
         return;
     }
     
+    // Root endpoint - for debugging
+    if (req.url === '/' || req.url === '') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('OpenPapa TTS Server is running!');
+        return;
+    }
+    
     // TTS endpoint
     if (req.url === '/tts' && req.method === 'POST') {
         try {
