@@ -667,7 +667,44 @@
                 return "好！我幫你book定位？定係想睇menu先？📋";
             }
             
-            // NEW TOPIC - start fresh, no context needed
+            // Handle location / address questions - NO context needed
+            if (lower.includes('邊') || lower.includes('度') || lower.includes('到') || lower.includes('住') || lower.includes('location') || lower.includes('address') || lower.includes('地址') || lower.includes('地址') || lower.includes('咩區') || lower.includes('邊區')) {
+                return "抱歉，我唔知道您既位置。不如您話比我知您想搵咩區既餐廳？";
+            }
+            
+            // Handle "邊間" (which one) - needs context but can also ask
+            if (lower.includes('邊間') || lower.includes('邊一家') || lower.includes('推薦邊') || lower.includes('咩餐廳')) {
+                if (lastTopic) {
+                    if (lastTopic === 'spicy') return "最hit既係「辣妹子火鍋」！📍";
+                    if (lastTopic === 'italian') return "推介「小意大利」！📍";
+                    if (lastTopic === 'coffee') return "「Coffee Lab」！📍";
+                    if (lastTopic === 'japanese') return "「壽司山大雄」！📍";
+                }
+                return "您想搵咩類型既餐廳先？";
+            }
+            
+            // Handle thanks
+            if (lower.includes('多謝') || lower.includes('謝謝') || lower.includes('thx') || lower.includes('thanks') || lower.includes('感恩')) {
+                return "唔洗客氣！仲想搵其他餐廳嗎？";
+            }
+            
+            // Handle yes/ok confirmation - only if context
+            if ((lower.includes('好') || lower.includes('ok') || lower.includes('好呀') || lower.includes('收') || lower.includes('係') || lower.includes('yes') || lower.includes('yeah')) && lastTopic) {
+                return "好！我幫您book位？定係想睇其他選擇？";
+            }
+            
+            // Handle "仲有" / follow-up questions with topic
+            const followUpWords = ['仲有', '其他', '仲想', '仲要', '仲有咩', '仲想問', '再問', '仲想知'];
+            const isFollowUp = followUpWords.some(w => lower.includes(w));
+            
+            if (isFollowUp && lastTopic) {
+                if (lastTopic === 'spicy') return "除麻辣火鍋，仲有泰式酸辣湯、四川涼皮！🌶️";
+                if (lastTopic === 'italian') return "意粉之外，披薩、燉飯好正！🍝";
+                if (lastTopic === 'coffee') return "手沖之外，仲有抹茶拿鐵！☕";
+                if (lastTopic === 'japanese') return "壽司之外，仲有拉麵、串燒！🍣";
+            }
+            
+            // MAIN TOPICS - these start new topics, no context needed
             if (lower.includes('辣') || lower.includes('spicy') || lower.includes('麻辣')) {
                 return "好！附近有一家超正既麻辣火鍋，辣得過癮！而且評價好高🇨🇳";
             } else if (lower.includes('義大利') || lower.includes('意大利') || lower.includes('italian')) {
