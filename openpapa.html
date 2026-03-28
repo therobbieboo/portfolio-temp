@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenPapa - 您的語音美食助手</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --accent-red: #ff4444;
+            --accent-orange: #ff6b35;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --border-color: #2a2a3a;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(255, 68, 68, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(255, 107, 53, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 1rem 0 1.5rem;
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        header p {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        
+        .voice-main {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 2rem;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .voice-main:hover {
+            border-color: var(--accent-red);
+        }
+        
+        .voice-main.listening {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 40px rgba(255, 68, 68, 0.3);
+        }
+        
+        .voice-main.speaking {
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 40px rgba(255, 107, 53, 0.3);
+        }
+        
+        .papa-emoji {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        
+        .voice-main.listening .papa-emoji {
+            animation: bounce 0.6s infinite;
+        }
+        
+        .voice-main.speaking .papa-emoji {
+            animation: speak 0.8s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes speak {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .voice-status {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-red);
+            margin-bottom: 0.5rem;
+        }
+        
+        .voice-hint {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .wave-container {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            height: 40px;
+            margin-top: 1rem;
+        }
+        
+        .voice-main.listening .wave-container,
+        .voice-main.speaking .wave-container {
+            display: flex;
+        }
+        
+        .wave-bar {
+            width: 4px;
+            background: var(--accent-red);
+            border-radius: 2px;
+            animation: wave 0.5s ease-in-out infinite;
+        }
+        
+        .voice-main.speaking .wave-bar {
+            background: var(--accent-orange);
+        }
+        
+        .wave-bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+        .wave-bar:nth-child(2) { height: 30px; animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { height: 40px; animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { height: 30px; animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { height: 20px; animation-delay: 0.4s; }
+        
+        @keyframes wave {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(1); }
+        }
+        
+        .chat-log {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .voice-message {
+            padding: 1rem 1.25rem;
+            border-radius: 1.25rem;
+            max-width: 90%;
+        }
+        
+        .voice-message.user {
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem;
+        }
+        
+        .voice-message.ai {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        .voice-message .text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .voice-message .time {
+            font-size: 0.65rem;
+            opacity: 0.6;
+            margin-top: 0.5rem;
+        }
+        
+        .quick-voice {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .voice-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .voice-btn:hover {
+            border-color: var(--accent-red);
+            background: rgba(255, 68, 68, 0.1);
+        }
+        
+        audio {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .log {
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            background: #222;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span>👴</span> OpenPapa</h1>
+            <p>您的語音美食助手</p>
+        </header>
+        
+        <!-- Main Voice Button -->
+        <div class="voice-main" id="voiceMain" onclick="handleVoiceClick()">
+            <span class="papa-emoji">👴</span>
+            <div class="voice-status" id="voiceStatus">點擊說話</div>
+            <div class="voice-hint" id="voiceHint">告訴我您想吃什麼</div>
+            <div class="wave-container">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+            </div>
+        </div>
+        
+        <!-- Chat Log -->
+        <div class="chat-log" id="chatLog"></div>
+        
+        <!-- Audio Player -->
+        <audio id="audioPlayer" controls style="display:none;"></audio>
+        
+        <!-- Quick Commands -->
+        <div class="quick-voice">
+            <button class="voice-btn" onclick="quickCommand('我想吃辣的食物')">🌶️ 辣的</button>
+            <button class="voice-btn" onclick="quickCommand('我想吃義大利料理')">🍝 義大利</button>
+            <button class="voice-btn" onclick="quickCommand('給我一個驚喜')">🎲 驚喜</button>
+            <button class="voice-btn" onclick="quickCommand('我需要咖啡')">☕ 咖啡</button>
+        </div>
+        
+        <!-- Debug Log -->
+        <div class="log" id="log"></div>
+    </div>
+    
+    <script>
+        const TTS_URL = 'https://portfolio-tts-test-production.up.railway.app/tts';
+        
+        let isSpeaking = false;
+        let audioBlob = null;
+        
+        function log(msg) {
+            document.getElementById('log').textContent += msg + '\n';
+        }
+        
+        function handleVoiceClick() {
+            if (isSpeaking) return;
+            speakDemo();
+        }
+        
+        function quickCommand(text) {
+            if (isSpeaking) return;
+            addMessage(text, 'user');
+            processCommand(text);
+        }
+        
+        function addMessage(text, sender) {
+            const chatLog = document.getElementById('chatLog');
+            const msg = document.createElement('div');
+            msg.className = `voice-message ${sender}`;
+            
+            const icon = sender === 'user' ? '🎤' : '👴';
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            msg.innerHTML = `
+                <span class="text">${icon} ${text}</span>
+                <div class="time">${time}</div>
+            `;
+            
+            chatLog.appendChild(msg);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+        
+        async function processCommand(text) {
+            const main = document.getElementById('voiceMain');
+            const status = document.getElementById('voiceStatus');
+            const hint = document.getElementById('voiceHint');
+            
+            main.classList.add('speaking');
+            status.textContent = "🔊 生成語音中...";
+            hint.textContent = "請稍候";
+            
+            try {
+                log('=== 生成 TTS ===');
+                log('文字: ' + text);
+                
+                const response = await fetch(TTS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        model: 'speech-2.8-hd',
+                        voice: 'Chinese (Mandarin)_Cute_Spirit',
+                        speed: 1,
+                        emotion: 'happy'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('TTS failed: ' + response.status);
+                }
+                
+                log('收到音頻!');
+                audioBlob = await response.blob();
+                log('大小: ' + audioBlob.size + ' bytes');
+                
+                const url = URL.createObjectURL(audioBlob);
+                const player = document.getElementById('audioPlayer');
+                player.src = url;
+                player.style.display = 'block';
+                player.play();
+                
+                player.onended = () => {
+                    isSpeaking = false;
+                    main.classList.remove('speaking');
+                    status.textContent = "點擊說話";
+                    hint.textContent = "告訴我您想吃什麼";
+                };
+                
+            } catch (err) {
+                log('Error: ' + err.message);
+                isSpeaking = false;
+                main.classList.remove('speaking');
+                status.textContent = "錯誤";
+                addMessage('抱歉，發生錯誤: ' + err.message, 'ai');
+            }
+        }
+        
+        async function speakDemo() {
+            const demoText = "你好！我是 OpenPapa！告訴我您想吃什麼，我會幫您找餐廳！";
+            addMessage(demoText, 'ai');
+            await processCommand(demoText);
+        }
+        
+        // Test on load
+        window.addEventListener('load', () => {
+            document.getElementById('voiceStatus').textContent = "👆 點擊測試";
+            document.getElementById('voiceHint').textContent = "測試 MiniMax 語音";
+        });
+    </script>
+</body>
+</html>
