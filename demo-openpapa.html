@@ -692,81 +692,54 @@ let MINIMAX_GROUP_ID = '2015394789192643334';
             return bytes;
         }
         
-        // MiniMax HTTP TTS (more reliable than WebSocket in browser)
-        function speakWithMinimaxHTTP(text) {
+        // Use local TTS server (bypasses CTS)
+        // TODO: Replace with your deployed Railway URL
+        const TTS_SERVER_URL = 'YOUR_RAILWAY_URL_HERE';
+        
+        function speakWithLocalTTS(text) {
             return new Promise((resolve, reject) => {
-                if (!MINIMAX_API_KEY || !MINIMAX_GROUP_ID) {
-                    reject(new Error('Missing API key or Group ID'));
-                    return;
-                }
-                
                 const main = document.getElementById('voiceMain');
                 const status = document.getElementById('voiceStatus');
-                status.textContent = "🔊 MiniMax 生成語音中...";
+                status.textContent = "🔊 生成語音中...";
                 
-                // Use alternative endpoint with better reliability
-                fetch(`https://api-uw.minimax.io/v1/t2a_v2?GroupId=${MINIMAX_GROUP_ID}`, {
+                fetch(TTS_SERVER_URL + '/tts', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${MINIMAX_API_KEY}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: "speech-2.8-hd",  // Better quality model
                         text: text,
-                        stream: false,
-                        voice_setting: {
-                            voice_id: "moss_audio_ce44fc67-7ce3-11f0-8de5-96e35d26fb85", // More natural Chinese voice
-                            speed: 1,
-                            vol: 1,
-                            pitch: 0,
-                            emotion: "calm"
-                        },
-                        audio_setting: {
-                            sample_rate: 32000,
-                            bitrate: 128000,
-                            format: "mp3",
-                            channel: 1
-                        },
-                        language_boost: "Chinese"
+                        model: "speech-2.8-hd",
+                        voice: "moss_audio_ce44fc67-7ce3-11f0-8de5-96e35d26fb85",
+                        speed: 1,
+                        emotion: "calm"
                     })
                 })
-                .then(res => res.json())
-                .then(data => {
-                    console.log('MiniMax HTTP response:', data);
+                .then(res => {
+                    if (!res.ok) throw new Error('TTS server error');
+                    return res.arrayBuffer();
+                })
+                .then(arrayBuffer => {
+                    const blob = new Blob([arrayBuffer], { type: 'audio/mp3' });
+                    const audioUrl = URL.createObjectURL(blob);
                     
-                    if (data.data && data.data.audio) {
-                        // Convert hex to audio bytes
-                        const audioBytes = hexToBytes(data.data.audio);
-                        
-                        // Create blob and play
-                        const blob = new Blob([audioBytes], { type: 'audio/mp3' });
-                        const audioUrl = URL.createObjectURL(blob);
-                        
-                        const audio = new Audio(audioUrl);
-                        
-                        main.classList.add('speaking');
-                        status.textContent = "🔊 說話中...";
-                        
-                        audio.onended = () => {
-                            resolve();
-                        };
-                        
-                        audio.onerror = (e) => {
-                            console.error('Audio error:', e);
-                            reject(e);
-                        };
-                        
-                        audio.play().catch(reject);
-                    } else if (data.base_resp) {
-                        console.error('MiniMax error:', data.base_resp);
-                        reject(new Error(data.base_resp.status_msg || 'API error'));
-                    } else {
-                        reject(new Error('No audio data returned'));
-                    }
+                    const audio = new Audio(audioUrl);
+                    main.classList.add('speaking');
+                    status.textContent = "🔊 說話中...";
+                    
+                    audio.onended = () => {
+                        resolve();
+                    };
+                    
+                    audio.onerror = (e) => {
+                        console.error('Audio error:', e);
+                        reject(e);
+                    };
+                    
+                    audio.play().catch(reject);
                 })
                 .catch(err => {
-                    console.error('MiniMax HTTP error:', err);
+                    console.error('TTS error:', err);
                     reject(err);
                 });
             });
@@ -780,21 +753,19 @@ let MINIMAX_GROUP_ID = '2015394789192643334';
             const status = document.getElementById('voiceStatus');
             const hint = document.getElementById('voiceHint');
             
-            // Try MiniMax HTTP first
-            if (MINIMAX_API_KEY && MINIMAX_GROUP_ID) {
-                try {
-                    await speakWithMinimaxHTTP(text);
-                    // Will resolve when audio finishes
-                    isProcessing = false;
-                    main.classList.remove('speaking');
-                    status.textContent = "點擊說話";
-                    hint.textContent = "告訴我你想吃什麼";
-                    showRestaurants();
-                    return;
-                } catch (e) {
-                    console.log('MiniMax WebSocket failed:', e);
-                    // Fall through to browser TTS
-                }
+            // Try local TTS server first (bypasses CORS)
+            try {
+                await speakWithLocalTTS(text);
+                // Will resolve when audio finishes
+                isProcessing = false;
+                main.classList.remove('speaking');
+                status.textContent = "點擊說話";
+                hint.textContent = "告訴我你想吃什麼";
+                showRestaurants();
+                return;
+            } catch (e) {
+                console.log('Local TTS failed:', e);
+                // Fall through to browser TTS
             }
             
             // Fallback to browser speech synthesis
