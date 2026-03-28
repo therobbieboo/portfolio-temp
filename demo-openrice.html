@@ -500,7 +500,16 @@
             };
         }
         
+        let voiceTested = false;
+        
         function handleVoiceClick() {
+            // First click tests voice
+            if (!voiceTested) {
+                voiceTested = true;
+                testVoiceOutput();
+                return;
+            }
+            
             if (isProcessing) return;
             
             if (!isListening) {
@@ -710,9 +719,14 @@
         
         // Auto-test voice on load
         window.addEventListener('load', () => {
+            // Delay to ensure user interaction
             setTimeout(() => {
-                testVoiceOutput();
-            }, 1000);
+                // Try to get attention
+                const main = document.getElementById('voiceMain');
+                main.classList.add('speaking');
+                document.getElementById('voiceStatus').textContent = "🔊 點擊測試語音";
+                document.getElementById('voiceHint').textContent = "點擊上方按鈕測試聲音";
+            }, 500);
         });
         
         function testVoiceOutput() {
@@ -721,31 +735,68 @@
                 return;
             }
             
-            const testText = "測試語音功能";
+            // Cancel any ongoing speech
+            speechSynthesis.cancel();
+            
+            const testText = "你好！我在這裡！";
             const testUtterance = new SpeechSynthesisUtterance(testText);
             testUtterance.rate = 1;
-            testUtterance.volume = 0.5;
+            testUtterance.volume = 1;
+            testUtterance.pitch = 1;
             
-            // Find Chinese voice
+            // Try to find any Chinese voice first, then any available
             const voices = speechSynthesis.getVoices();
-            const zhVoice = voices.find(v => v.lang.startsWith('zh'));
-            if (zhVoice) {
-                testUtterance.voice = zhVoice;
+            console.log('Available voices:', voices.map(v => v.name + ' (' + v.lang + ')'));
+            
+            let selectedVoice = null;
+            
+            // Priority: Chinese -> any voice
+            for (const v of voices) {
+                if (v.lang.startsWith('zh')) {
+                    selectedVoice = v;
+                    break;
+                }
+            }
+            
+            if (!selectedVoice && voices.length > 0) {
+                // Fallback: use any English voice
+                selectedVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
+            }
+            
+            if (selectedVoice) {
+                testUtterance.voice = selectedVoice;
+                testUtterance.lang = selectedVoice.lang;
             }
             
             testUtterance.onstart = () => {
-                addVoiceMessage('🔊 語音測試中... 請聽是否有聲音', 'ai');
+                addVoiceMessage('🔊 正在說話...', 'ai');
+                const main = document.getElementById('voiceMain');
+                main.classList.add('speaking');
             };
             
             testUtterance.onend = () => {
-                addVoiceMessage('✅ 語音測試完成！請告訴我有沒有聽到聲音', 'ai');
+                addVoiceMessage('✅ 說完了！請告訴我有沒有聽到聲音', 'ai');
+                const main = document.getElementById('voiceMain');
+                main.classList.remove('speaking');
+                document.getElementById('voiceStatus').textContent = "點擊說話";
+                document.getElementById('voiceHint').textContent = "告訴我你想吃什麼";
             };
             
             testUtterance.onerror = (e) => {
-                addVoiceMessage('❌ 語音測試失敗: ' + e.error, 'ai');
+                addVoiceMessage('❌ 語音錯誤: ' + e.error, 'ai');
+                console.error('Speech error:', e);
             };
             
             speechSynthesis.speak(testUtterance);
+        }
+        
+        function handleVoiceClick() {
+            if (!voiceTested) {
+                voiceTested = true;
+                testVoiceOutput();
+                return;
+            }
+            originalHandleVoiceClick();
         }
     </script>
 </body>
