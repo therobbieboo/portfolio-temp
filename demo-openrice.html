@@ -765,15 +765,14 @@
             .then(data => {
                 console.log('Minimax response:', data);
                 if (data.data && data.data.audio) {
-                    // Convert base64 to audio
-                    const audioBase64 = data.data.audio;
-                    const audioBytes = atob(audioBase64);
-                    const arrayBuffer = new ArrayBuffer(audioBytes.length);
-                    const uint8Array = new Uint8Array(arrayBuffer);
-                    for (let i = 0; i < audioBytes.length; i++) {
-                        uint8Array[i] = audioBytes.charCodeAt(i);
+                    // Convert hex string to audio (Minimax returns hex, not base64)
+                    const hexString = data.data.audio;
+                    const audioBytes = new Uint8Array(hexString.length / 2);
+                    for (let i = 0; i < hexString.length; i += 2) {
+                        audioBytes[i / 2] = parseInt(hexString.substr(i, 2), 16);
                     }
-                    const blob = new Blob([uint8Array], { type: 'audio/wav' });
+                    
+                    const blob = new Blob([audioBytes], { type: 'audio/wav' });
                     const audioUrl = URL.createObjectURL(blob);
                     
                     const audio = new Audio(audioUrl);
