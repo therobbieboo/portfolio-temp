@@ -418,13 +418,13 @@
 <body>
     <div class="container">
         <header>
-            <h1><span>🐼</span> OpenPapa</h1>
+            <h1><span>🐭</span> OpenPapa</h1>
             <p>您的語音美食助手</p>
         </header>
         
         <!-- Main Voice Button -->
         <div class="voice-main" id="voiceMain">
-            <span class="papa-emoji">🐼</span>
+            <span class="papa-emoji">🐭</span>
             <div class="voice-status" id="voiceStatus">👆 點擊說話</div>
             <div class="voice-hint" id="voiceHint">告訴我您想吃什麼</div>
             <div class="recording-indicator" id="recordingIndicator">🎤 正在錄音...</div>
@@ -570,7 +570,7 @@
             const msg = document.createElement('div');
             msg.className = `voice-message ${sender}`;
             
-            const icon = sender === 'user' ? '🎤' : '🐼';
+            const icon = sender === 'user' ? '🎤' : '🐭';
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
             msg.innerHTML = `
@@ -622,21 +622,52 @@
         function generateAIResponse(userText) {
             const lower = userText.toLowerCase();
             
-            // Context-aware responses
-            const lastUserMsg = conversationContext.length > 0 ? conversationContext[conversationContext.length - 1].text : '';
+            // Get conversation history for context
+            const history = conversationContext;
+            let lastTopic = null;
             
-            // Check for follow-up questions
-            if (lower.includes('仲有') || lower.includes('仲有其他') || lower.includes('仲有咩') || lower.includes('仲有') || lower.includes('仲想')) {
-                if (lastUserMsg.includes('辣')) {
-                    return "除了麻辣火鍋，仲有泰式料理、酸辣湯都好好味！要試邊個？";
-                } else if (lastUserMsg.includes('義大利') || lower.includes('意大利')) {
-                    return "仲有手工意粉、披薩、同埋risotto都好正！想試邊款？";
-                } else if (lastUserMsg.includes('咖啡') || lower.includes('coffee')) {
-                    return "除咗咖啡，仲有抹茶拿鐵、泰式奶茶添！要咩？";
+            // Find last mentioned topic
+            for (let i = history.length - 1; i >= 0; i--) {
+                const msg = history[i];
+                if (msg.text.includes('辣') || msg.text.includes('火鍋')) { lastTopic = 'spicy'; break; }
+                if (msg.text.includes('義大利') || msg.text.includes('意大利') || msg.text.includes('意大利')) { lastTopic = 'italian'; break; }
+                if (msg.text.includes('咖啡') || msg.text.includes('coffee')) { lastTopic = 'coffee'; break; }
+                if (msg.text.includes('日本') || msg.text.includes('壽司') || msg.text.includes('sushi')) { lastTopic = 'japanese'; break; }
+                if (msg.text.includes('早餐') || msg.text.includes('早午餐') || msg.text.includes('brunch')) { lastTopic = 'brunch'; break; }
+                if (msg.text.includes('米其林') || msg.text.includes('高級')) { lastTopic = 'michelin'; break; }
+            }
+            
+            // Context-aware responses based on conversation history
+            // 1. Follow-up questions
+            const followUpWords = ['仲有', '其他', '仲想', '仲要', '仲有咩', '仲有其他', '仲有冇', '仲想問', '再問', '仲想知', '仲有沒有'];
+            const isFollowUp = followUpWords.some(w => lower.includes(w));
+            
+            if (isFollowUp && lastTopic) {
+                if (lastTopic === 'spicy') return "除咗麻辣火鍋，仲有泰式酸辣湯、四川涼皮、水煮魚都好正！要邊個？🌶️";
+                if (lastTopic === 'italian') return "意粉之外，披薩、燉飯、千層面都好正！想試邊款？🍝";
+                if (lastTopic === 'coffee') return "除咗手沖咖啡，仲有抹茶拿鐵、燕麥奶拿鐵、泰式奶茶添！☕";
+                if (lastTopic === 'japanese') return "壽司之外，仲有拉麵、串燒、天婦羅！想食咩？🍣";
+                if (lastTopic === 'brunch') return "除咗班尼迪蛋，仲有法式吐司、acai bowl、松餅！🥐";
+                if (lastTopic === 'michelin') return "米其林之外，仲有黑珍珠、推薦餐廳！要睇其他選擇嗎？⭐";
+            }
+            
+            // 2. Clarifying questions after recommendation
+            if (lower.includes('邊間') || lower.includes('邊一家') || lower.includes('邊一個') || lower.includes('推薦邊')) {
+                if (lastTopic === 'spicy') return "最hit既係「辣妹子火鍋」，评分4.8！📍";
+                if (lastTopic === 'italian') return "我最推介「小意大利」，手工意粉正呀！📍";
+                if (lastTopic === 'coffee') return "就係呢間「Coffee Lab」，手沖單品咖啡超正！📍";
+                if (lastTopic === 'japanese') return "「壽司山大雄」既新鮮程度最高！📍";
+            }
+            
+            // 3. Confirmation responses
+            if (lower.includes('好') || lower.includes('可以') || lower.includes('要') || lower.includes('試') || lower.includes('去')) {
+                if (lastTopic) {
+                    return "好！我幫你book定位？定係想睇menu先？📋";
                 }
             }
             
-            // Original logic
+            // 4. Original topic logic (only if no context match)
+            if (lower.includes('辣') || lower.includes('spicy')) {
             if (lower.includes('辣') || lower.includes('spicy')) {
                 return "好！附近有一家超正既麻辣火鍋，辣得過癮！而且評價好高🇨🇳";
             } else if (lower.includes('義大利') || lower.includes('意大利') || lower.includes('italian')) {
@@ -821,7 +852,7 @@
             
             // Welcome message
             setTimeout(() => {
-                addMessage('你好！我是 OpenPapa！🐼 話比我知你想食咩？', 'ai');
+                addMessage('你好！我是 OpenPapa！🐭 話比我知你想食咩？', 'ai');
             }, 500);
         });
     </script>
