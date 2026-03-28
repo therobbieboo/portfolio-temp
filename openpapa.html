@@ -8,12 +8,15 @@
         :root {
             --bg-dark: #0a0a0f;
             --bg-card: #12121a;
+            --bg-card-hover: #1a1a25;
             --accent-red: #ff4444;
             --accent-orange: #ff6b35;
             --accent-green: #10b981;
+            --accent-yellow: #ffc107;
             --text-primary: #ffffff;
             --text-secondary: #9ca3af;
             --border-color: #2a2a3a;
+            --gradient-red: linear-gradient(135deg, #ff4444, #ff6b35);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -73,6 +76,7 @@
         
         .voice-main:hover {
             border-color: var(--accent-red);
+            transform: translateY(-2px);
         }
         
         .voice-main.listening {
@@ -83,12 +87,19 @@
         .voice-main.speaking {
             border-color: var(--accent-orange);
             box-shadow: 0 0 40px rgba(255, 107, 53, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(255, 107, 53, 0.3); }
+            50% { box-shadow: 0 0 60px rgba(255, 107, 53, 0.5); }
         }
         
         .papa-emoji {
-            font-size: 4rem;
+            font-size: 4.5rem;
             display: block;
             margin-bottom: 1rem;
+            transition: transform 0.3s;
         }
         
         .voice-main.listening .papa-emoji {
@@ -110,7 +121,7 @@
         }
         
         .voice-status {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--accent-red);
             margin-bottom: 0.5rem;
@@ -123,6 +134,17 @@
         .voice-hint {
             color: var(--text-secondary);
             font-size: 0.85rem;
+        }
+        
+        .recording-indicator {
+            display: none;
+            color: var(--accent-green);
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        
+        .voice-main.listening .recording-indicator {
+            display: block;
         }
         
         .wave-container {
@@ -161,23 +183,150 @@
             50% { transform: scaleY(1); }
         }
         
+        /* Modern Audio Player */
+        .audio-player {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .audio-player.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .audio-player-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        
+        .audio-player-title {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .audio-player-title::before {
+            content: '🔊';
+        }
+        
+        .audio-player-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .audio-progress {
+            position: relative;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .audio-progress-fill {
+            height: 100%;
+            background: var(--gradient-red);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .audio-play-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-red);
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .audio-play-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .audio-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .audio-info {
+            flex: 1;
+        }
+        
+        .audio-text {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Chat Log */
         .chat-log {
             display: flex;
             flex-direction: column;
             gap: 1rem;
             margin-bottom: 1.5rem;
-            max-height: 300px;
+            max-height: 350px;
             overflow-y: auto;
+            padding-right: 5px;
+        }
+        
+        .chat-log::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .chat-log::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        
+        .chat-log::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 2px;
         }
         
         .voice-message {
             padding: 1rem 1.25rem;
             border-radius: 1.25rem;
             max-width: 90%;
+            animation: slideUp 0.3s ease;
         }
         
         .voice-message.user {
-            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            background: var(--gradient-red);
             align-self: flex-end;
             border-bottom-right-radius: 0.25rem;
         }
@@ -200,6 +349,29 @@
             margin-top: 0.5rem;
         }
         
+        .voice-message .typing {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-orange);
+            border-radius: 50%;
+            animation: typingPulse 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typingPulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        
+        /* Quick Commands */
         .quick-voice {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -222,34 +394,23 @@
         
         .voice-btn:hover {
             border-color: var(--accent-red);
-            background: rgba(255, 68, 68, 0.1);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
         }
         
-        audio {
-            width: 100%;
-            margin: 10px 0;
-        }
-        
-        .log {
-            font-family: monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-            background: #222;
-            color: #0f0;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 20px;
+        /* Context indicator */
+        .context-indicator {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: var(--bg-card);
+            border-radius: 0.5rem;
             display: none;
         }
         
-        .recording-indicator {
-            display: none;
-            color: var(--accent-green);
-            font-size: 0.8rem;
-            margin-top: 5px;
-        }
-        
-        .voice-main.listening .recording-indicator {
+        .context-indicator.active {
             display: block;
         }
     </style>
@@ -276,11 +437,33 @@
             </div>
         </div>
         
-        <!-- Chat Log -->
-        <div class="chat-log" id="chatLog"></div>
+        <!-- Context Indicator -->
+        <div class="context-indicator" id="contextIndicator">
+            💬 對話中 - 可以繼續提問
+        </div>
         
         <!-- Audio Player -->
-        <audio id="audioPlayer" controls style="display:none;"></audio>
+        <div class="audio-player" id="audioPlayer">
+            <div class="audio-player-header">
+                <div class="audio-player-title">OpenPapa 回覆</div>
+                <button class="audio-player-close" onclick="closeAudioPlayer()">×</button>
+            </div>
+            <div class="audio-progress" onclick="seekAudio(event)">
+                <div class="audio-progress-fill" id="audioProgressFill"></div>
+            </div>
+            <div class="audio-controls">
+                <button class="audio-play-btn" id="audioPlayBtn" onclick="togglePlay()">▶</button>
+                <div class="audio-info">
+                    <div class="audio-text" id="audioText">...</div>
+                    <div class="audio-time">
+                        <span id="audioCurrentTime">0:00</span> / <span id="audioDuration">0:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Log -->
+        <div class="chat-log" id="chatLog"></div>
         
         <!-- Quick Commands -->
         <div class="quick-voice">
@@ -289,9 +472,6 @@
             <button class="voice-btn" onclick="quickCommand('給我一個驚喜')">🎲 驚喜</button>
             <button class="voice-btn" onclick="quickCommand('我需要咖啡')">☕ 咖啡</button>
         </div>
-        
-        <!-- Debug Log -->
-        <div class="log" id="log"></div>
     </div>
     
     <script>
@@ -299,12 +479,12 @@
         
         let isSpeaking = false;
         let isListening = false;
+        let isPlaying = false;
         let audioBlob = null;
         let recognition = null;
-        
-        function log(msg) {
-            document.getElementById('log').textContent += msg + '\n';
-        }
+        let conversationContext = [];
+        let audioElement = null;
+        let currentAudioUrl = null;
         
         // Initialize Speech Recognition
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -315,24 +495,13 @@
             recognition.interimResults = false;
             recognition.lang = 'zh-TW';
             
-            recognition.onstart = () => {
-                log('語音辨識開始');
-            };
-            
             recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
-                log('聽到: ' + transcript);
                 addMessage(transcript, 'user');
                 processCommand(transcript);
             };
             
-            recognition.onerror = (event) => {
-                log('語音辨識錯誤: ' + event.error);
-                stopListening();
-            };
-            
             recognition.onend = () => {
-                log('語音辨識結束');
                 if (isListening) {
                     stopListening();
                 }
@@ -368,7 +537,6 @@
             try {
                 recognition.start();
             } catch (e) {
-                log('啟動失敗: ' + e.message);
                 stopListening();
             }
         }
@@ -382,9 +550,7 @@
             main.classList.remove('listening');
             
             if (recognition) {
-                try {
-                    recognition.stop();
-                } catch (e) {}
+                try { recognition.stop(); } catch (e) {}
             }
             
             if (!isSpeaking) {
@@ -414,22 +580,85 @@
             
             chatLog.appendChild(msg);
             chatLog.scrollTop = chatLog.scrollHeight;
+            
+            // Update context
+            if (sender === 'user') {
+                conversationContext.push({ role: 'user', text: text });
+            }
+        }
+        
+        function showTyping() {
+            const chatLog = document.getElementById('chatLog');
+            const msg = document.createElement('div');
+            msg.className = 'voice-message ai';
+            msg.id = 'typingMessage';
+            msg.innerHTML = `
+                <span class="text">
+                    <span class="typing">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </span>
+                </span>
+            `;
+            chatLog.appendChild(msg);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+        
+        function removeTyping() {
+            const typingMsg = document.getElementById('typingMessage');
+            if (typingMsg) typingMsg.remove();
+        }
+        
+        function updateContextIndicator(show) {
+            const indicator = document.getElementById('contextIndicator');
+            if (show && conversationContext.length > 1) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
         }
         
         function generateAIResponse(userText) {
-            // Simple response logic - can be replaced with real LLM
             const lower = userText.toLowerCase();
             
+            // Context-aware responses
+            const lastUserMsg = conversationContext.length > 0 ? conversationContext[conversationContext.length - 1].text : '';
+            
+            // Check for follow-up questions
+            if (lower.includes('仲有') || lower.includes('仲有其他') || lower.includes('仲有咩') || lower.includes('仲有') || lower.includes('仲想')) {
+                if (lastUserMsg.includes('辣')) {
+                    return "除了麻辣火鍋，仲有泰式料理、酸辣湯都好好味！要試邊個？";
+                } else if (lastUserMsg.includes('義大利') || lower.includes('意大利')) {
+                    return "仲有手工意粉、披薩、同埋risotto都好正！想試邊款？";
+                } else if (lastUserMsg.includes('咖啡') || lower.includes('coffee')) {
+                    return "除咗咖啡，仲有抹茶拿鐵、泰式奶茶添！要咩？";
+                }
+            }
+            
+            // Original logic
             if (lower.includes('辣') || lower.includes('spicy')) {
-                return "好的！附近有一家超棒的麻辣火鍋，讓我推薦給您！";
-            } else if (lower.includes('義大利') || lower.includes('italian')) {
-                return "義大利料理嗎？這裡有一家很棒的義大利餐廳！";
-            } else if (lower.includes('驚喜') || lower.includes('surprise')) {
-                return "讓我給您一個驚喜！根據最新評價，這家餐廳最火！";
-            } else if (lower.includes('咖啡') || lower.includes('coffee')) {
-                return "需要提神嗎？這裡有幾家超人氣咖啡店！";
+                return "好！附近有一家超正既麻辣火鍋，辣得過癮！而且評價好高🇨🇳";
+            } else if (lower.includes('義大利') || lower.includes('意大利') || lower.includes('italian')) {
+                return "意大利菜？呢度有一家手工意粉既餐廳超讚慨🇮🇹";
+            } else if (lower.includes('驚喜') || lower.includes('surprise') || lower.includes('random')) {
+                return "好！今日既hidden gem係呢間「深夜食堂」🇯🇵";
+            } else if (lower.includes('咖啡') || lower.includes('coffee') || lower.includes('提神')) {
+                return "OK！呢度有幾家人氣咖啡店☕";
+            } else if (lower.includes('日本') || lower.includes('壽司') || lower.includes('sushi')) {
+                return "日本料理？呢間壽司店既食材超新鮮🇯🇵";
+            } else if (lower.includes('早餐') || lower.includes('早午餐') || lower.includes('brunch')) {
+                return "早午餐？呢間既班尼迪克蛋超級正🥐";
+            } else if (lower.includes('貴') || lower.includes('高級') || lower.includes('michelin')) {
+                return "米其林？呢度有3間星級餐廳好啱慶祝🥇";
+            } else if (lower.includes('便') || lower.includes('平') || lower.includes('budget') || lower.includes('$$')) {
+                return "平靚正？呢間既叉燒飯CP值超高🇭🇰";
+            } else if (lower.includes('近') || lower.includes(' nearby') || lower.includes('附近')) {
+                return "離你呢度最近既係呢間，行路5分鐘就到📍";
+            } else if (lower.includes('想') || lower.includes('要') || lower.includes('搵') || lower.includes('搵')) {
+                return "明白！等我幫你搵下🇨🇳";
             } else {
-                return "好的！讓我幫您找找附近好吃的餐廳！";
+                return "好問題！我地有中式、日式、意大利菜、印度咖喱🍜";
             }
         }
         
@@ -444,18 +673,24 @@
             isSpeaking = true;
             
             status.textContent = "🧠 AI 思考中...";
-            hint.textContent = "請稍候";
+            hint.textContent = "等佢砌一砌";
+            
+            showTyping();
             
             try {
-                // Generate AI response
-                const aiResponse = generateAIResponse(text);
-                log('AI 回覆: ' + aiResponse);
+                // Simulate thinking time for better UX
+                await new Promise(r => setTimeout(r, 1000));
                 
-                // Add AI message to chat
+                const aiResponse = generateAIResponse(text);
+                removeTyping();
                 addMessage(aiResponse, 'ai');
                 
-                // Generate TTS
-                log('=== 生成 TTS ===');
+                // Update context
+                conversationContext.push({ role: 'assistant', text: aiResponse });
+                updateContextIndicator(true);
+                
+                // Show audio player
+                status.textContent = "🔊 緊係緊係...";
                 
                 const response = await fetch(TTS_URL, {
                     method: 'POST',
@@ -470,47 +705,124 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error('TTS failed: ' + response.status);
+                    throw new Error('TTS failed');
                 }
                 
-                log('收到音頻!');
                 audioBlob = await response.blob();
-                log('大小: ' + audioBlob.size + ' bytes');
-                
                 const url = URL.createObjectURL(audioBlob);
-                const player = document.getElementById('audioPlayer');
-                player.src = url;
-                player.style.display = 'block';
-                player.play();
+                currentAudioUrl = url;
                 
-                status.textContent = "🔊 播放中...";
-                
-                player.onended = () => {
-                    isSpeaking = false;
-                    main.classList.remove('speaking');
-                    status.textContent = "👆 點擊說話";
-                    hint.textContent = "告訴我您想吃什麼";
-                };
+                // Show audio player
+                showAudioPlayer(url, aiResponse);
                 
             } catch (err) {
-                log('Error: ' + err.message);
+                removeTyping();
+                addMessage('抱歉，出錯了: ' + err.message, 'ai');
                 isSpeaking = false;
                 main.classList.remove('speaking');
-                status.textContent = "錯誤";
-                addMessage('抱歉，發生錯誤: ' + err.message, 'ai');
+                status.textContent = "👆 點擊說話";
+                hint.textContent = "告訴我您想吃什麼";
             }
         }
         
-        // Test on load
+        function showAudioPlayer(url, text) {
+            const player = document.getElementById('audioPlayer');
+            const playerText = document.getElementById('audioText');
+            const main = document.getElementById('voiceMain');
+            const status = document.getElementById('voiceStatus');
+            const hint = document.getElementById('voiceHint');
+            
+            playerText.textContent = text;
+            player.classList.add('active');
+            
+            // Create audio element
+            if (audioElement) {
+                audioElement.pause();
+                audioElement = null;
+            }
+            
+            audioElement = new Audio(url);
+            audioElement.onplay = () => {
+                isPlaying = true;
+                document.getElementById('audioPlayBtn').textContent = '⏸';
+            };
+            
+            audioElement.onended = () => {
+                isPlaying = false;
+                document.getElementById('audioPlayBtn').textContent = '▶';
+                document.getElementById('audioProgressFill').style.width = '100%';
+                isSpeaking = false;
+                main.classList.remove('speaking');
+                status.textContent = "👆 點擊說話";
+                hint.textContent = "可以繼續傾偈 🇭🇰";
+            };
+            
+            audioElement.ontimeupdate = () => {
+                const percent = (audioElement.currentTime / audioElement.duration) * 100;
+                document.getElementById('audioProgressFill').style.width = percent + '%';
+                document.getElementById('audioCurrentTime').textContent = formatTime(audioElement.currentTime);
+                document.getElementById('audioDuration').textContent = formatTime(audioElement.duration);
+            };
+            
+            audioElement.play();
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function togglePlay() {
+            if (!audioElement) return;
+            
+            if (isPlaying) {
+                audioElement.pause();
+                document.getElementById('audioPlayBtn').textContent = '▶';
+            } else {
+                audioElement.play();
+                document.getElementById('audioPlayBtn').textContent = '⏸';
+            }
+            isPlaying = !isPlaying;
+        }
+        
+        function seekAudio(event) {
+            if (!audioElement) return;
+            
+            const progressBar = event.currentTarget;
+            const percent = event.offsetX / progressBar.offsetWidth;
+            audioElement.currentTime = percent * audioElement.duration;
+        }
+        
+        function closeAudioPlayer() {
+            const player = document.getElementById('audioPlayer');
+            player.classList.remove('active');
+            
+            if (audioElement) {
+                audioElement.pause();
+            }
+            
+            const main = document.getElementById('voiceMain');
+            if (!isSpeaking) {
+                main.classList.remove('speaking');
+                document.getElementById('voiceStatus').textContent = "👆 點擊說話";
+                document.getElementById('voiceHint').textContent = "可以繼續傾偈 🇭🇰";
+            }
+        }
+        
+        // Initialize
         window.addEventListener('load', () => {
             if (!SpeechRecognition) {
                 document.getElementById('voiceStatus').textContent = "⚠️ 不支援語音";
                 document.getElementById('voiceHint').textContent = "用下方按鈕測試";
             } else {
-                document.getElementById('voiceStatus').textContent = "👆 點擊說話";
-                document.getElementById('voiceHint').textContent = "告訴我您想吃什麼";
                 document.getElementById('voiceMain').onclick = handleVoiceClick;
             }
+            
+            // Welcome message
+            setTimeout(() => {
+                addMessage('你好！我是 OpenPapa！🐼 話比我知你想食咩？', 'ai');
+            }, 500);
         });
     </script>
 </body>
