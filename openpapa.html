@@ -342,17 +342,15 @@
                 
                 removeTyping();
                 
-                // Immediately start TTS generation while showing text
-                addMessage(aiResponse, 'ai');
-                
                 conversationHistory.push({ role: 'user', content: text });
                 conversationHistory.push({ role: 'assistant', content: aiResponse });
                 if (conversationHistory.length > 8) conversationHistory = conversationHistory.slice(-8);
                 
-                // Generate TTS IMMEDIATELY - parallel with showing text
-                status.textContent = '🔊 生成语音...';
+                // Show TTS generating animation FIRST
+                status.textContent = '🔊 生成语音中...';
+                document.getElementById('avatar').className = 'avatar speaking';
                 
-                // Fire and forget TTS - don't await, start playing when ready
+                // Generate TTS and ONLY show text after audio starts playing
                 generateAndPlayTTS(aiResponse);
                 
             } catch (err) {
@@ -395,9 +393,11 @@
             document.getElementById('status').className = 'status';
         }
         
-        // Generate and play TTS in parallel - no await
+        // Generate TTS - show text only when audio starts playing
         async function generateAndPlayTTS(text) {
             try {
+                status.textContent = '🔊 生成语音中...';
+                
                 const ttsResponse = await fetch(TTS_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -415,10 +415,15 @@
                 const audioBlob = await ttsResponse.blob();
                 const url = URL.createObjectURL(audioBlob);
                 
-                // Play immediately when ready
+                // NOW show text - when audio is ready to play
+                addMessage(text, 'ai');
+                
+                // Play immediately
                 playAudio(url);
             } catch (err) {
                 console.log('TTS error:', err);
+                // Fallback: show text anyway
+                addMessage(text, 'ai');
                 resetState();
             }
         }
