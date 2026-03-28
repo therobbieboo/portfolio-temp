@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenPapa - Your Voice Food Companion</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --accent-red: #ff4444;
+            --accent-orange: #ff6b35;
+            --accent-yellow: #ffc107;
+            --accent-green: #10b981;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --border-color: #2a2a3a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(255, 68, 68, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(255, 107, 53, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        header {
+            text-align: center;
+            padding: 1rem 0 1.5rem;
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        header h1 span {
+            font-size: 2.5rem;
+        }
+        
+        header p {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Voice Panel - Main Interaction */
+        .voice-main {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 2rem;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .voice-main:hover {
+            border-color: var(--accent-red);
+        }
+        
+        .voice-main.listening {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 40px rgba(255, 68, 68, 0.3);
+        }
+        
+        .voice-main.speaking {
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 40px rgba(255, 107, 53, 0.3);
+        }
+        
+        /* Animated Papa Icon */
+        .papa-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1rem;
+            position: relative;
+            transition: transform 0.3s;
+        }
+        
+        .papa-emoji {
+            font-size: 4rem;
+            display: block;
+            transition: transform 0.3s;
+        }
+        
+        .voice-main.listening .papa-emoji {
+            animation: bounce 0.6s infinite;
+        }
+        
+        .voice-main.speaking .papa-emoji {
+            animation: speak 0.8s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes speak {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .voice-status {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-red);
+            margin-bottom: 0.5rem;
+        }
+        
+        .voice-hint {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        /* Location Badge */
+        .location-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .location-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Chat - Voice Transcripts */
+        .chat-log {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        
+        .voice-message {
+            padding: 1rem 1.25rem;
+            border-radius: 1.25rem;
+            max-width: 90%;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .voice-message.user {
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 0.25rem;
+        }
+        
+        .voice-message.ai {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        .voice-message .icon {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+        
+        .voice-message .text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .voice-message .time {
+            font-size: 0.65rem;
+            opacity: 0.6;
+            margin-top: 0.5rem;
+        }
+        
+        /* Restaurant Cards */
+        .restaurant-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-top: 0.75rem;
+            animation: slideUp 0.3s ease;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .restaurant-card:hover {
+            border-color: var(--accent-red);
+            transform: translateX(4px);
+        }
+        
+        .restaurant-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .restaurant-name {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .restaurant-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 600;
+        }
+        
+        .restaurant-rating .star {
+            color: var(--accent-yellow);
+        }
+        
+        .restaurant-info {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .restaurant-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: rgba(255, 68, 68, 0.15);
+            color: var(--accent-red);
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+        }
+        
+        .tag.michelin {
+            background: rgba(255, 193, 7, 0.15);
+            color: var(--accent-yellow);
+        }
+        
+        /* Voice Wave Animation */
+        .wave-container {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            height: 40px;
+            margin-top: 1rem;
+        }
+        
+        .voice-main.listening .wave-container,
+        .voice-main.speaking .wave-container {
+            display: flex;
+        }
+        
+        .wave-bar {
+            width: 4px;
+            background: var(--accent-red);
+            border-radius: 2px;
+            animation: wave 0.5s ease-in-out infinite;
+        }
+        
+        .voice-main.listening .wave-bar {
+            animation: wave 0.4s ease-in-out infinite;
+        }
+        
+        .voice-main.speaking .wave-bar {
+            animation: wave 0.6s ease-in-out infinite;
+            background: var(--accent-orange);
+        }
+        
+        .wave-bar:nth-child(1) { height: 20px; animation-delay: 0s; }
+        .wave-bar:nth-child(2) { height: 30px; animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { height: 40px; animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { height: 30px; animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { height: 20px; animation-delay: 0.4s; }
+        
+        @keyframes wave {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(1); }
+        }
+        
+        /* Quick Voice Commands */
+        .quick-voice {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-top: auto;
+        }
+        
+        .voice-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .voice-btn:hover {
+            border-color: var(--accent-red);
+            background: rgba(255, 68, 68, 0.1);
+        }
+        
+        /* Footer Stats */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-red);
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span>👴</span> OpenPapa</h1>
+            <p>Your Voice Food Companion</p>
+        </header>
+        
+        <!-- Main Voice Button -->
+        <div class="voice-main" id="voiceMain" onclick="handleVoiceClick()">
+            <div class="papa-icon">
+                <span class="papa-emoji">👴</span>
+            </div>
+            <div class="voice-status" id="voiceStatus">點擊說話</div>
+            <div class="voice-hint" id="voiceHint">告訴我你想吃什麼</div>
+            <div class="wave-container">
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+            </div>
+        </div>
+        
+        <!-- Location -->
+        <div class="location-badge">
+            <span class="dot"></span>
+            <span>San Francisco, CA</span>
+        </div>
+        
+        <!-- Voice Chat Log -->
+        <div class="chat-log" id="chatLog">
+            <!-- Messages will appear here -->
+        </div>
+        
+        <!-- Quick Voice Commands -->
+        <div class="quick-voice">
+            <button class="voice-btn" onclick="quickVoice('Find spicy food')">
+                🌶️ Spicy
+            </button>
+            <button class="voice-btn" onclick="quickVoice('I want Italian')">
+                🍝 Italian
+            </button>
+            <button class="voice-btn" onclick="quickVoice('Surprise me')">
+                🎲 Surprise me
+            </button>
+            <button class="voice-btn" onclick="quickVoice('Need coffee')">
+                ☕ Coffee
+            </button>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value">42</div>
+                <div class="stat-label">Nearby</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Michelin</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">4.3★</div>
+                <div class="stat-label">Avg</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Restaurant Data
+        const restaurants = [
+            { name: "Tartine Bakery", rating: 4.7, cuisine: "Bakery", price: "$$", distance: "0.3 mi", tags: ["Bakery", "Coffee"], michelin: true },
+            { name: "Swan Oyster Depot", rating: 4.8, cuisine: "Seafood", price: "$$$", distance: "0.5 mi", tags: ["Oysters", "Fresh"], michelin: true },
+            { name: "House of Prime Rib", rating: 4.6, cuisine: "Steakhouse", price: "$$$", distance: "0.8 mi", tags: ["Prime Rib", "Classic"], michelin: true },
+            { name: "Dragon Horse Bakery", rating: 4.5, cuisine: "Asian", price: "$", distance: "0.4 mi", tags: ["Asian", "Unique"], michelin: false }
+        ];
+        
+        let isListening = false;
+        let isProcessing = false;
+        let utterance = null;
+        
+        // Speech Recognition Setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+                    recognition.lang = 'zh-TW';
+            
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                handleUserVoice(transcript);
+            };
+            
+            recognition.onerror = (event) => {
+                console.log('Speech error:', event.error);
+                stopListening();
+            };
+            
+            recognition.onend = () => {
+                if (isListening) {
+                    stopListening();
+                }
+            };
+        }
+        
+        let voiceTested = false;
+        
+        function handleVoiceClick() {
+            // First click tests voice
+            if (!voiceTested) {
+                voiceTested = true;
+                testVoiceOutput();
+                return;
+            }
+            
+            if (isProcessing) return;
+            
+            if (!isListening) {
+                startListening();
+            } else {
+                stopListening();
+            }
+        }
+        
+        function startListening() {
+            if (!recognition) {
+                addVoiceMessage("Sorry, voice recognition is not supported in this browser. Try Chrome!", 'ai');
+                return;
+            }
+            
+            isListening = true;
+            const main = document.getElementById('voiceMain');
+            const status = document.getElementById('voiceStatus');
+            const hint = document.getElementById('voiceHint');
+            
+            main.classList.add('listening');
+            main.classList.remove('speaking');
+            status.textContent = "Listening...";
+            hint.textContent = "Speak now";
+            
+            try {
+                recognition.start();
+            } catch (e) {
+                console.log('Recognition start error:', e);
+            }
+        }
+        
+        function stopListening() {
+            isListening = false;
+            const main = document.getElementById('voiceMain');
+            const status = document.getElementById('voiceStatus');
+            const hint = document.getElementById('voiceHint');
+            
+            main.classList.remove('listening');
+            status.textContent = "Processing...";
+            hint.textContent = "Thinking...";
+            
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {}
+            }
+        }
+        
+        function handleUserVoice(text) {
+            addVoiceMessage(text, 'user');
+            processVoiceCommand(text);
+        }
+        
+        function quickVoice(text) {
+            if (isProcessing) return;
+            addVoiceMessage(text, 'user');
+            processVoiceCommand(text);
+        }
+        
+        function addVoiceMessage(text, sender) {
+            const chatLog = document.getElementById('chatLog');
+            const msg = document.createElement('div');
+            msg.className = `voice-message ${sender}`;
+            
+            const icon = sender === 'user' ? '🎤' : '👴';
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            msg.innerHTML = `
+                <span class="icon">${icon}</span>
+                <span class="text">${text}</span>
+                <div class="time">${time}</div>
+            `;
+            
+            chatLog.appendChild(msg);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+        
+        // NOTE: API key must be provided by user
+        let OPENAI_API_KEY = null;
+        
+        function processVoiceCommand(text) {
+            isProcessing = true;
+            const main = document.getElementById('voiceMain');
+            const status = document.getElementById('voiceStatus');
+            const hint = document.getElementById('voiceHint');
+            
+            main.classList.remove('listening');
+            main.classList.add('speaking');
+            
+            // Check if API key is configured - show input if not
+            if (!OPENAI_API_KEY) {
+                status.textContent = "需要 API Key";
+                hint.textContent = "請提供 OpenAI API Key";
+                addVoiceMessage('⚠️ 需要 OpenAI API Key。請在你的 openclaw.json 中設定 skills.openai-api.apiKey', 'ai');
+                
+                // Try to get key from URL parameter as fallback
+                const urlParams = new URLSearchParams(window.location.search);
+                const keyFromUrl = urlParams.get('key');
+                if (keyFromUrl) {
+                    OPENAI_API_KEY = keyFromUrl;
+                    addVoiceMessage('✅ 從 URL 找到 API Key，開始連線...', 'ai');
+                } else {
+                    isProcessing = false;
+                    main.classList.remove('speaking');
+                    return;
+                }
+            }
+            
+            status.textContent = "AI 思考中...";
+            hint.textContent = "等一下";
+            
+            // Call OpenAI API
+            fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + OPENAI_API_KEY
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o-mini',
+                    messages: [
+                        { role: 'system', content: '你是 OpenPapa，一個友善的餐廳推薦助手。用簡短的中文回答（50字以內）。' },
+                        { role: 'user', content: text }
+                    ],
+                    max_tokens: 100
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const aiResponse = data.choices?.[0]?.message?.content || "抱歉，我沒有收到回應";
+                speakResponse(aiResponse);
+            })
+            .catch(error => {
+                console.error('API error:', error);
+                const fallback = generateResponse(text);
+                speakResponse(fallback);
+            });
+        }
+        
+        function generateResponse(text) {
+            const lower = text.toLowerCase();
+            
+            if (lower.includes('辣') || lower.includes(' spicy')) {
+                return "找到幾家超棒的麻辣火鍋和泰式料理！讓我推薦給你！";
+            } else if (lower.includes('義大利') || lower.includes('italian') || lower.includes('義式')) {
+                return "附近有3家很棒的義大利餐廳！義大利手工麵特別好吃！";
+            } else if (lower.includes('驚喜') || lower.includes('surprise')) {
+                return "讓我給你一個驚喜！根據最新評價，現在最火的是這家！";
+            } else if (lower.includes('咖啡') || lower.includes('coffee')) {
+                return "需要提神嗎？附近有幾家咖啡店很不錯！";
+            } else if (lower.includes('壽司') || lower.includes('日本') || lower.includes('sushi') || lower.includes('japanese')) {
+                return "壽司愛好者！找到幾家最新鮮的日本料理！";
+            } else if (lower.includes('便宜') || lower.includes('省') || lower.includes('budget') || lower.includes('$')) {
+                return "想省錢？這裡有幾家CP值超高的餐廳！";
+            } else if (lower.includes('米其林') || lower.includes('高級') || lower.includes('michelin')) {
+                return "找到3家米其林推薦餐廳！適合特別的場合！";
+            } else if (lower.includes('火鍋')) {
+                return "火鍋時間！這裡有幾家超人氣火鍋店！";
+            } else if (lower.includes('牛肉') || lower.includes('牛') || lower.includes(' steak')) {
+                return "牛排來了！找到幾家頂級牛排館！";
+            } else if (lower.includes('早餐') || lower.includes('早午餐') || lower.includes('brunch')) {
+                return "早餐時間！這裡的早午餐超級熱門！";
+            } else {
+                return "好的！讓我帮你找找附近好吃的餐廳！";
+            }
+        }
+        
+        // ============ MINIMAX WEBSOCKET TTS ============
+        let MINIMAX_API_KEY = null;
+        let MINIMAX_GROUP_ID = null;
+        
+        // Convert hex string to Uint8Array
+        function hexToBytes(hex) {
+            const bytes = new Uint8Array(hex.length / 2);
+            for (let i = 0; i < hex.length; i += 2) {
+                bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+            }
+            return bytes;
+        }
+        
+        // Minimax WebSocket TTS
+        function speakWithMinimaxWebSocket(text) {
+            return new Promise((resolve, reject) => {
+                if (!MINIMAX_API_KEY || !MINIMAX_GROUP_ID) {
+                    reject(new Error('Missing API key or Group ID'));
+                    return;
+                }
+                
+                const main = document.getElementById('voiceMain');
+                const status = document.getElementById('voiceStatus');
+                status.textContent = "🔊 MiniMax 連線中...";
+                
+                // Use wss://api.minimax.io/ws/v1/t2a_v2 for WebSocket
+                const wsUrl = 'wss://api.minimax.io/ws/v1/t2a_v2';
+                const ws = new WebSocket(wsUrl);
+                
+                let audioChunks = [];
+                let isFinal = false;
+                let audioContext = null;
+                let audioQueue = [];
+                let isPlaying = false;
+                
+                ws.onopen = () => {
+                    console.log('WebSocket connected');
+                    
+                    // Send task_start
+                    const startMsg = {
+                        event: 'task_start',
+                        model: 'speech-02-hd',
+                        voice_setting: {
+                            voice_id: 'Chinese (Mandarin)_Radio_Host',
+                            speed: 1,
+                            vol: 1,
+                            pitch: 0,
+                            english_normalization: false
+                        },
+                        audio_setting: {
+                            sample_rate: 32000,
+                            bitrate: 128000,
+                            format: 'mp3',
+                            channel: 1
+                        }
+                    };
+                    ws.send(JSON.stringify(startMsg));
+                };
+                
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('WS message:', data);
+                        
+                        if (data.event === 'task_started') {
+                            // Now send the text
+                            ws.send(JSON.stringify({
+                                event: 'task_continue',
+                                text: text
+                            }));
+                        }
+                        
+                        if (data.data && data.data.audio && data.data.audio.length > 0) {
+                            // Convert hex to bytes and queue for playback
+                            const audioBytes = hexToBytes(data.data.audio);
+                            audioChunks.push(audioBytes);
+                            
+                            // Play chunks as they arrive (or wait for all)
+                            if (audioContext && !isPlaying) {
+                                playAudioQueue();
+                            }
+                        }
+                        
+                        if (data.is_final) {
+                            isFinal = true;
+                            main.classList.add('speaking');
+                            status.textContent = "🔊 說話中...";
+                            
+                            // Combine all chunks and create audio
+                            playCombinedAudio(audioChunks);
+                        }
+                    } catch (e) {
+                        console.error('Parse error:', e);
+                    }
+                };
+                
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    reject(error);
+                };
+                
+                ws.onclose = () => {
+                    console.log('WebSocket closed');
+                };
+                
+                // Play all combined audio chunks
+                function playCombinedAudio(chunks) {
+                    if (chunks.length === 0) {
+                        reject(new Error('No audio data'));
+                        return;
+                    }
+                    
+                    // Combine all chunks
+                    const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+                    const combined = new Uint8Array(totalLength);
+                    let offset = 0;
+                    for (const chunk of chunks) {
+                        combined.set(chunk, offset);
+                        offset += chunk.length;
+                    }
+                    
+                    // Create blob and play
+                    const blob = new Blob([combined], { type: 'audio/mp3' });
+                    const audioUrl = URL.createObjectURL(blob);
+                    
+                    const audio = new Audio(audioUrl);
+                    audio.onended = () => {
+                        resolve();
+                    };
+                    audio.onerror = (e) => {
+                        reject(e);
+                    };
+                    audio.play().catch(reject);
+                }
+                
+                // Also try to play incrementally if chunks arrive during streaming
+                function playAudioQueue() {
+                    if (audioChunks.length > 0 && !isPlaying) {
+                        isPlaying = true;
+                        const chunk = audioChunks.shift();
+                        const blob = new Blob([chunk], { type: 'audio/mp3' });
+                        const audioUrl = URL.createObjectURL(blob);
+                        
+                        const audio = new Audio(audioUrl);
+                        audio.onended = () => {
+                            isPlaying = false;
+                            if (audioChunks.length > 0 && !isFinal) {
+                                playAudioQueue();
+                            }
+                        };
+                        audio.play().catch(() => {
+                            isPlaying = false;
+                        });
+                    }
+                }
+                
+                // Timeout after 30 seconds
+                setTimeout(() => {
+                    if (!isFinal) {
+                        ws.close();
+                        reject(new Error('Timeout'));
+                    }
+                }, 30000);
+            });
+        }
+        
+        async function speakResponse(text) {
+            // Add AI response to chat
+            addVoiceMessage(text, 'ai');
+            
+            const main = document.getElementById('voiceMain');
+            const status = document.getElementById('voiceStatus');
+            const hint = document.getElementById('voiceHint');
+            
+            // Try MiniMax WebSocket first
+            if (MINIMAX_API_KEY && MINIMAX_GROUP_ID) {
+                try {
+                    await speakWithMinimaxWebSocket(text);
+                    // Will resolve when audio finishes
+                    isProcessing = false;
+                    main.classList.remove('speaking');
+                    status.textContent = "點擊說話";
+                    hint.textContent = "告訴我你想吃什麼";
+                    showRestaurants();
+                    return;
+                } catch (e) {
+                    console.log('MiniMax WebSocket failed:', e);
+                    // Fall through to browser TTS
+                }
+            }
+            
+            // Fallback to browser speech synthesis
+            if ('speechSynthesis' in window) {
+                utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.1;
+                utterance.pitch = 1;
+                
+                const voices = speechSynthesis.getVoices();
+                const chineseVoice = voices.find(v => v.lang.startsWith('zh')) 
+                    || voices.find(v => v.lang.startsWith('cmn'));
+                
+                if (chineseVoice) {
+                    utterance.voice = chineseVoice;
+                    utterance.lang = chineseVoice.lang;
+                } else {
+                    utterance.lang = 'zh-TW';
+                }
+                
+                utterance.onend = () => {
+                    isProcessing = false;
+                    main.classList.remove('speaking');
+                    status.textContent = "點擊說話";
+                    hint.textContent = "告訴我你想吃什麼";
+                    showRestaurants();
+                };
+                
+                utterance.onerror = () => {
+                    isProcessing = false;
+                    showRestaurants();
+                };
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                isProcessing = false;
+                showRestaurants();
+            }
+        }
+        
+        function showRestaurants() {
+            const chatLog = document.getElementById('chatLog');
+            
+            restaurants.forEach((r, i) => {
+                setTimeout(() => {
+                    const card = document.createElement('div');
+                    card.className = 'restaurant-card';
+                    card.innerHTML = `
+                        <div class="restaurant-card-header">
+                            <span class="restaurant-name">${r.name}</span>
+                            <span class="restaurant-rating"><span class="star">★</span> ${r.rating}</span>
+                        </div>
+                        <div class="restaurant-info">
+                            <span>${r.cuisine}</span>
+                            <span>${r.price}</span>
+                            <span>📍 ${r.distance}</span>
+                        </div>
+                        <div class="restaurant-tags">
+                            ${r.tags.map(t => `<span class="tag ${r.michelin && t === 'Bakery' ? 'michelin' : ''}">${t}</span>`).join('')}
+                        </div>
+                    `;
+                    chatLog.appendChild(card);
+                    chatLog.scrollTop = chatLog.scrollHeight;
+                }, i * 500);
+            });
+        }
+        
+        // Load voices
+        if ('speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = () => {
+                console.log('Voices loaded:', speechSynthesis.getVoices().length);
+            };
+        }
+        
+        // Auto-test voice on load
+        window.addEventListener('load', () => {
+            // Try to get Minimax config from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const mmKey = urlParams.get('mmKey');
+            const mmGroup = urlParams.get('mmGroup');
+            
+            if (mmKey) MINIMAX_API_KEY = mmKey;
+            if (mmGroup) MINIMAX_GROUP_ID = mmGroup;
+            
+            // Delay to ensure user interaction
+            setTimeout(() => {
+                const main = document.getElementById('voiceMain');
+                main.classList.add('speaking');
+                document.getElementById('voiceStatus').textContent = "🔊 點擊測試語音";
+                document.getElementById('voiceHint').textContent = "點擊上方按鈕測試聲音";
+            }, 500);
+        });
+        
+        function testVoiceOutput() {
+            if (!('speechSynthesis' in window)) {
+                addVoiceMessage('⚠️ 瀏覽器不支持語音輸出', 'ai');
+                return;
+            }
+            
+            // Cancel any ongoing speech
+            speechSynthesis.cancel();
+            
+            const testText = "你好！我是 OpenPapa！";
+            const testUtterance = new SpeechSynthesisUtterance(testText);
+            testUtterance.rate = 1;
+            testUtterance.volume = 1;
+            testUtterance.pitch = 1;
+            
+            const voices = speechSynthesis.getVoices();
+            console.log('Available voices:', voices.map(v => v.name + ' (' + v.lang + ')'));
+            
+            let selectedVoice = null;
+            for (const v of voices) {
+                if (v.lang.startsWith('zh')) {
+                    selectedVoice = v;
+                    break;
+                }
+            }
+            
+            if (!selectedVoice && voices.length > 0) {
+                selectedVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
+            }
+            
+            if (selectedVoice) {
+                testUtterance.voice = selectedVoice;
+                testUtterance.lang = selectedVoice.lang;
+            }
+            
+            testUtterance.onstart = () => {
+                addVoiceMessage('🔊 正在說話...', 'ai');
+                const main = document.getElementById('voiceMain');
+                main.classList.add('speaking');
+            };
+            
+            testUtterance.onend = () => {
+                addVoiceMessage('✅ 說完了！請告訴我有沒有聽到聲音', 'ai');
+                const main = document.getElementById('voiceMain');
+                main.classList.remove('speaking');
+                document.getElementById('voiceStatus').textContent = "點擊說話";
+                document.getElementById('voiceHint').textContent = "告訴我你想吃什麼";
+            };
+            
+            testUtterance.onerror = (e) => {
+                addVoiceMessage('❌ 語音錯誤: ' + e.error, 'ai');
+                console.error('Speech error:', e);
+            };
+            
+            speechSynthesis.speak(testUtterance);
+        }
+    </script>
+</body>
+</html>
